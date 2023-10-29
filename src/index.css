@@ -1,13 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@1,300&family=Open+Sans&family=Roboto+Mono:wght@300;400&family=Tilt+Neon&display=swap");
+
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: "Noto Sans", sans-serif;
+  font-family: "Open Sans", sans-serif;
+  font-family: "Roboto Mono", monospace;
+  font-family: "Tilt Neon", sans-serif;
+  background-color: white;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+.dark_mode {
+  background-image: linear-gradient(
+    111.4deg,
+    rgba(7, 7, 9, 1) 6.5%,
+    rgba(27, 24, 113, 1) 93.2%
+  );
+}
+
+input {
+  outline: none !important;
+  outline-offset: 0 !important;
+
+  --tw-ring-shadow: none !important;
+}
+
+input:focus {
+  outline: none !important;
+  outline-offset: 0 !important;
+  --tw-ring-shadow: none !important;
+}
+
+.bg-rgba {
+  background-color: rgba(44, 50, 44, 0.6);
+}
+
+.bgr-white {
+  background-color: rgba(210, 214, 214, 0.771);
+}
+
+input.defaultCheckbox::before {
+  content: url(../public/assets/svg/checked.svg);
+  color: white;
+  opacity: 0;
+  height: 16px;
+  width: 16px;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0px);
+}
+
+input:checked.defaultCheckbox::before {
+  opacity: 1;
+}
+
+.css-13cymwt-control {
+  border-radius: 20px;
+}
+
+.highcharts-bindings-wrapper .highcharts-arrow-down,
+.highcharts-bindings-wrapper .highcharts-arrow-up {
+  width: 50%;
+  height: 20px;
+  float: left;
+  background-color: rgb(195, 194, 206);
+}
+
+.highcharts-credits .custom-cursor-on-hover {
+  display: none;
 }
