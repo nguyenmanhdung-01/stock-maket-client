@@ -26,7 +26,9 @@ export function SidebarLinks(props) {
           <Link key={index} to={route.layout + "/" + route.path}>
             <div className="relative mb-3 flex hover:cursor-pointer">
               <li
-                className="my-[5px] flex cursor-pointer items-center px-8 text-xl"
+                className={`my-[5px] flex cursor-pointer items-center px-8 text-xl ${
+                  route.hidden === true ? "hidden" : ""
+                }`}
                 key={index}
               >
                 <span

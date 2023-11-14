@@ -3,6 +3,7 @@ import Dropdown from "./Dropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGlobe } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
 const SetLanguage = () => {
   const { t, i18n } = useTranslation();
   const dropdownRef = React.useRef(null);
@@ -10,6 +11,7 @@ const SetLanguage = () => {
   const changeLanguage = (lng) => {
     // console.log("Changing language", lng);
     i18n.changeLanguage(lng);
+    dayjs.locale(lng);
     closeDropdown();
   };
 
@@ -19,11 +21,11 @@ const SetLanguage = () => {
     }
   };
   return (
-    <div>
+    <div className="">
       <Dropdown
         button={
-          <p className="cursor-pointer">
-            <FontAwesomeIcon icon={faGlobe} />
+          <p className="cursor-pointer text-xl">
+            <FontAwesomeIcon icon={faGlobe} className=" text-white" />
           </p>
         }
         ref={dropdownRef}
@@ -57,7 +59,7 @@ const SetLanguage = () => {
             </button>
           </div>
         }
-        classNames={"py-2 top-4 right-0 drop-shadow-3xl w-max"}
+        classNames={"py-2 top-4 drop-shadow-3xl w-max"}
       />
     </div>
   );

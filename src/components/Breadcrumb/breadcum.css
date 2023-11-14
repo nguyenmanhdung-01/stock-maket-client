@@ -1,0 +1,9 @@
+.bread-cum {
+  position: absolute;
+  top: 0;
+  right: -24px;
+  width: 0;
+  height: 0;
+  border-bottom: 38px solid #ededef;
+  border-right: 24px solid transparent;
+}

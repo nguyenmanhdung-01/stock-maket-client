@@ -1,6 +1,8 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-
+import dayjs from "dayjs";
+import "dayjs/locale/vi";
+import "dayjs/locale/en";
 i18n.use(initReactI18next).init({
   resources: {
     en: {
@@ -28,6 +30,10 @@ i18n.use(initReactI18next).init({
         "Nhập lại": "Reset",
         "Gửi đi": "Send",
         giờ: "hours",
+        "Thông tin cá nhân": "General Information",
+        "phút trước": "minutes ago",
+        "giây trước": "seconds ago",
+        "giờ trước": "hours ago",
       },
     },
     vi: {
@@ -53,6 +59,10 @@ i18n.use(initReactI18next).init({
         "Nhập lại": "Nhập lại",
         "Gửi đi": "Gửi đi",
         giờ: "giờ",
+        "Thông tin cá nhân": "Thông tin cá nhân",
+        "phút trước": "phút trước",
+        "giây trước": "giây",
+        "giờ trước": "giờ",
       },
     },
     // Add more languages here...
@@ -63,5 +73,6 @@ i18n.use(initReactI18next).init({
     escapeValue: false, // Bỏ qua việc thoát các ký tự đặc biệt
   },
 });
+dayjs.locale("vi");
 
 export default i18n;

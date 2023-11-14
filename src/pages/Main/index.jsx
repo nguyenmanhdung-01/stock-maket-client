@@ -5,6 +5,7 @@ import MarketOverviewWidget from "./MaketOverView";
 import SAMPrice from "./SAM-Price";
 import axios from "axios";
 import HighChartsStock from "../../components/HighCharts";
+import Forex from "./components/Forex";
 const DOMAIN = process.env.REACT_APP_DOMAIN;
 const KEY = process.env.REACT_APP_KEY;
 
@@ -98,8 +99,9 @@ export default function MainApp() {
   }
 
   const options = {
-    chart: {
-      // backgroundColor: "#ddd",
+    rangeSelector: {
+      selected: 1,
+      inputDateFormat: "%b %e, %Y %H:%M",
     },
     yAxis: [
       {
@@ -120,6 +122,14 @@ export default function MainApp() {
         offset: 0,
       },
     ],
+    plotOptions: {
+      candlestick: {
+        color: "pink",
+        lineColor: "red",
+        upColor: "lightgreen",
+        upLineColor: "green",
+      },
+    },
     tooltip: {
       shape: "square",
       headerShape: "callout",
@@ -194,16 +204,15 @@ export default function MainApp() {
   };
 
   return (
-    <div
-      className=" h-[500px] grid grid-cols-3 gap-3"
-      style={{ width: "100%" }}
-    >
-      <div className="col-span-2">
-        <HighChartsStock options={options} />
-      </div>
-      <div>
+    <div className="w-full">
+      <div className=" grid grid-cols-3 gap-3" style={{ width: "100%" }}>
+        <div className="col-span-2">
+          <HighChartsStock options={options} />
+        </div>
+
         <MarketOverviewWidget />
       </div>
+      <Forex />
     </div>
   );
 }

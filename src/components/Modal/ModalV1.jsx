@@ -17,7 +17,7 @@ export default function ModalV1({
     <Transition.Root show={open} as={Fragment}>
       <Dialog
         as="div"
-        className={`${className ? className : ""}relative z-40`}
+        className={`${className ? className : ""}relative z-[2000]`}
         initialFocus={cancelButtonRef}
         onClose={setOpen}
       >
@@ -46,8 +46,8 @@ export default function ModalV1({
             >
               <Dialog.Panel
                 className={`${
-                  classNameChildren ? classNameChildren : " w-[500px]"
-                } max-h-[700px] overflow-y-auto m-auto relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg`}
+                  classNameChildren ? classNameChildren : " w-[750px]"
+                } max-h-[700px] overflow-y-auto m-auto relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all`}
               >
                 <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 relative">
                   <button
@@ -57,15 +57,15 @@ export default function ModalV1({
                   >
                     <IoClose className=" text-[30px]" />
                   </button>
-                  <div className="sm:flex sm:items-start">
+                  <div className="">
                     <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                       <Dialog.Title
                         as="h3"
-                        className="text-base font-semibold leading-6 text-gray-900"
+                        className=" text-lg font-semibold leading-6 text-gray-900"
                       >
                         {title}
                       </Dialog.Title>
-                      <div className="items-center text-center mt-2 text-[12px]">
+                      <div className="items-center mt-2 text-[12px]">
                         {children}
                       </div>
                     </div>
