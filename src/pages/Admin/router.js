@@ -20,13 +20,17 @@ import {
 } from "react-icons/md";
 import MainDashboard from "./Views/MainDashboard/MainDashboard";
 import UserManager from "./Views/UserManager/UserManager";
-import PostManager from "./Views/PostManager/PostManager";
 import ContactManager from "./Views/ContactManager/ContactManager";
 import MainApp from "../Main";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAddressBook } from "@fortawesome/free-regular-svg-icons";
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faUsers } from "@fortawesome/free-solid-svg-icons";
 import ProfileOverview from "./Views/profile";
+import QL_PhanQuyen from "./Views/QL_PhanQuyen/QL_PhanQuyen";
+import ContactManagerDetail from "./Views/ContactManager/ContactManagerDetail";
+import CategoryManager from "./Views/CategoryManager/CategoryManager";
+import NewsManager from "./Views/NewsManager/NewsManager";
+import NewsDetail from "./Views/NewsManager/NewsDetail";
 
 const routes = [
   {
@@ -45,11 +49,26 @@ const routes = [
     secondary: true,
   },
   {
-    name: "Quản lý bài viết",
+    name: "Quản lý danh mục",
+    layout: "/admin",
+    path: "categoryManager",
+    icon: <FontAwesomeIcon icon={faBars} className="h-6 w-6" />,
+    component: <CategoryManager />,
+    secondary: true,
+  },
+  {
+    name: "Quản lý tin tức",
     layout: "/admin",
     icon: <MdBarChart className="h-6 w-6" />,
-    path: "postManager",
-    component: <PostManager />,
+    path: "newsManager",
+    component: <NewsManager />,
+  },
+  {
+    name: "Chi tiết tin tức",
+    layout: "/admin",
+    path: "/newsDetail/:id",
+    component: <NewsDetail />,
+    hidden: true,
   },
   {
     name: "Quản lý liên hệ",
@@ -64,6 +83,22 @@ const routes = [
     path: "profile-manager",
     icon: <MdPerson className="h-6 w-6" />,
     component: <ProfileOverview />,
+  },
+
+  {
+    name: "Quản lý phân quyền",
+    layout: "/admin",
+    path: "phan-quyen",
+    icon: <MdPerson className="h-6 w-6" />,
+    component: <QL_PhanQuyen />,
+  },
+
+  {
+    name: "Chi tiết phản hồi",
+    layout: "/admin",
+    path: "/contactManager/:id",
+    component: <ContactManagerDetail />,
+    hidden: true,
   },
 
   {

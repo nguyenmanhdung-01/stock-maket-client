@@ -18,13 +18,14 @@ export default function Switcher() {
   };
 
   return (
-    <>
+    <div className=" mr-4">
       <DarkModeSwitch
         checked={darkSide}
         onChange={toggleDarkMode}
-        size={30}
+        size={26}
         moonColor="yellow"
+        sunColor="orange"
       />
-    </>
+    </div>
   );
 }

@@ -1,0 +1,25 @@
+
+.ql-editor {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ql-editing {
+  left: 0 !important;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item::before {
+  content: attr(data-value) !important;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-options {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-item {
+  padding: 2px 6px;
+  cursor: pointer;
+}
+

@@ -35,7 +35,7 @@ const Dropdown = forwardRef((props, ref) => {
         {button}
       </div>
       <div
-        className={`${classNames} absolute z-10 ${
+        className={`${classNames} absolute z-[1000] ${
           animation
             ? animation
             : "origin-top-right transition-all duration-300 ease-in-out"

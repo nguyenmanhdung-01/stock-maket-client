@@ -25,6 +25,11 @@ import Community from "./pages/Community/Community";
 import Contact from "./pages/Contact/Contact";
 import Admin from "./Layout/LayoutAdmin";
 import MainDashboard from "./pages/Admin/Views/MainDashboard/MainDashboard";
+import News from "./pages/News/News";
+import User from "./pages/User/User";
+import ContactManagerDetail from "./pages/Admin/Views/ContactManager/ContactManagerDetail.jsx";
+import NewDetail from "./pages/News/View/NewsDetail.jsx";
+import NewContentDetail from "./pages/News/View/NewContentDetail.jsx";
 const AppLayout = () => {
   return (
     <Routes>
@@ -39,12 +44,19 @@ const AppLayout = () => {
         <Route path="/aapl-ohlcv" element={<Heikin_Ashi />} />
         <Route path="/community" element={<Community />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/news" element={<News />} />
+        <Route path="/news/:slug" element={<NewDetail />} />
+        <Route path="/:slug" element={<NewContentDetail />} />
+
+        <Route path="/user-info/:id" element={<User />} />
       </Route>
       <Route path="/login-page" element={<LayoutLogin />}>
         <Route path="" element={<Login />} />
         <Route path="register" element={<Register />} />
       </Route>
       <Route path="admin/*" element={<Admin />} />
+      {/* <Route path="/contactManager/:id" element={<ContactManagerDetail />} /> */}
+      {/* </Route> */}
     </Routes>
   );
 };

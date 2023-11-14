@@ -4,23 +4,19 @@ import React from "react";
 
 const Search = () => {
   return (
-    <di className="ml-8">
-      <form
-        action="
-        "
-      >
-        <label htmlFor="" className=" relative">
+    <di className="mr-8">
+      <form action="">
+        <div className="flex items-center border-solid border-[2px] border-slate-200 rounded-md">
           <input
             type="text"
-            placeholder="Search ..."
-            className="w-[240px] py-1 pl-3 pr-8 text-sm block focus:outline-none border-solid border-[2px] border-slate-200 rounded-3xl"
+            placeholder="Tìm kiếm bài viết"
+            className="w-[240px] py-1 px-3 text-sm block focus:outline-none "
           />
           <FontAwesomeIcon
             icon="fa-solid fa-magnifying-glass"
-            flip
-            className=" min-w-[16px] min-h-[16px] absolute top-1 right-1 p-1 "
+            className=" min-w-[20px] min-h-[20px] px-2 py-1 text-white cursor-pointer bg-navy-700 "
           />
-        </label>
+        </div>
       </form>
     </di>
   );

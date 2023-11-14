@@ -3,12 +3,8 @@ import Dropdown from "../Dropdown";
 import { FiAlignJustify } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { BsArrowBarUp } from "react-icons/bs";
-import { FiSearch } from "react-icons/fi";
 import { RiMoonFill, RiSunFill } from "react-icons/ri";
-import {
-  IoMdNotificationsOutline,
-  IoMdInformationCircleOutline,
-} from "react-icons/io";
+import { IoMdNotificationsOutline } from "react-icons/io";
 
 const NavbarAdmin = (props) => {
   const { onOpenSidenav, brandText } = props;

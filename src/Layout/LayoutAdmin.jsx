@@ -4,6 +4,8 @@ import NavbarAdmin from "../components/Navbar/NavbarAdmin";
 import Sidebar from "../components/Sidebar";
 
 import routes from "../pages/Admin/router";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Admin(props) {
   const { ...rest } = props;
@@ -70,7 +72,6 @@ export default function Admin(props) {
           <div className="h-full">
             <NavbarAdmin
               onOpenSidenav={() => setOpen(true)}
-              logoText={"Horizon UI Tailwind React"}
               brandText={currentRoute}
               secondary={getActiveNavbar(routes)}
               {...rest}
@@ -88,6 +89,7 @@ export default function Admin(props) {
             {/* <div className="p-3">
               <Footer />
             </div> */}
+            <ToastContainer />
           </div>
         </main>
       </div>

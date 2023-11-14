@@ -15,13 +15,22 @@ require("highcharts/modules/annotations-advanced")(HighCharts);
 require("highcharts/modules/price-indicator")(HighCharts);
 require("highcharts/modules/full-screen")(HighCharts);
 require("highcharts/indicators/volume-by-price")(HighCharts);
-require("highcharts/themes/high-contrast-light")(HighCharts);
-require("highcharts/themes/brand-dark")(HighCharts);
+// require("highcharts/themes/high-contrast-light")(HighCharts);
+require("highcharts/themes/sand-signika")(HighCharts);
 highchartsMore(HighCharts);
 const HighChartsStock = ({ options }) => {
   useEffect(() => {
     HighCharts.setOptions({
       lang: {
+        weekdays: [
+          "Chủ Nhật",
+          "Thứ Hai",
+          "Thứ Ba",
+          "Thứ Tư",
+          "Thứ Năm",
+          "Thứ Sáu",
+          "Thứ Bảy",
+        ],
         months: [
           "Tháng 1",
           "Tháng 2",
@@ -36,15 +45,7 @@ const HighChartsStock = ({ options }) => {
           "Tháng 11",
           "Tháng 12",
         ],
-        weekdays: [
-          "Chủ Nhật",
-          "Thứ Hai",
-          "Thứ Ba",
-          "Thứ Tư",
-          "Thứ Năm",
-          "Thứ Sáu",
-          "Thứ Bảy",
-        ],
+
         numericSymbols: [" nghìn", " triệu"],
         loading: "Đang tải...",
       },
