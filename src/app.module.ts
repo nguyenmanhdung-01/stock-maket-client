@@ -10,6 +10,8 @@ import { NewscategoryModule } from './newscategory/newscategory.module';
 import { NewsModule } from './news/news.module';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
+import { PhanQuyenModule } from './phan-quyen/phan-quyen.module';
+import { NhomQuyenModule } from './nhom-quyen/nhom-quyen.module';
 import entities from './utils/typeorm';
 
 let envFilePath = '.env.development';
@@ -38,6 +40,8 @@ if (process.env.ENVIRONMENT === 'PRODUCTION') envFilePath = '.env.production';
     NewsModule,
     PostModule,
     CommentModule,
+    PhanQuyenModule,
+    NhomQuyenModule,
   ],
   controllers: [],
   providers: [],
