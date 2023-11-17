@@ -8,6 +8,8 @@ export enum Routes {
   NEWSCATEGORY = 'newscategory',
   POST = 'post',
   COMMENT = 'comment',
+  PHANQUYEN = 'phanquyen',
+  NHOMQUYEN = 'nhomquyen',
 }
 export enum Services {
   AUTH = 'AUTH_SERVICE',
@@ -20,4 +22,6 @@ export enum Services {
   NEWSCATEGORY = 'newscategory',
   POST = 'POST_SERVICE',
   COMMENT = 'COMMENT_SERVICE',
+  PHANQUYEN = 'PHANQUYEN_SERVICE',
+  NHOMQUYEN = 'NHOMQUYEN_SERVICE',
 }

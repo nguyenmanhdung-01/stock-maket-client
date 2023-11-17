@@ -10,6 +10,9 @@ export class BangRoleGroup {
   @Column()
   TenNhomQuyen: string;
 
-  @Column()
+  @Column('json', { nullable: true })
   NhomQuyen: string;
+
+  @Column({ type: 'boolean', default: false, nullable: true })
+  IsRemoved: boolean;
 }
