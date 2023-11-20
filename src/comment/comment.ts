@@ -9,4 +9,5 @@ export interface ICommentService {
   getUniqueCommentById(id: number);
   getChildComments(parentId: number);
   deleteManyComments(commentDeleteId: number[]);
+  likeComment(id: number, userId: number);
 }

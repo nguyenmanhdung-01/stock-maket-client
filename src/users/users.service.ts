@@ -20,9 +20,9 @@ export class UsersService implements IUserService {
       TenDangNhap: userDetails.TenDangNhap,
     });
 
-    if (existing) {
-      throw new HttpException('Người dùng đã tồn tại', HttpStatus.CONFLICT);
-    }
+    // if (existing) {
+    //   throw new HttpException('Người dùng đã tồn tại', HttpStatus.CONFLICT);
+    // }
 
     const password = await hashPassword(userDetails.MatKhau);
     const params = { ...userDetails, MatKhau: password };
@@ -116,5 +116,22 @@ export class UsersService implements IUserService {
       );
       await this.userRepository.save(user);
     }
+  }
+
+  async updateAvatarUser(userId: string, avatarUrl: string) {
+    const user = await this.userRepository.findOne({
+      id: Number(userId),
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    // console.log('xuong day tiep: ', avatarUrl);
+
+    // const memberByUser = await
+
+    user.Avatar = avatarUrl;
+    const updateAvatar = await this.userRepository.save(user);
+
+    return updateAvatar;
   }
 }

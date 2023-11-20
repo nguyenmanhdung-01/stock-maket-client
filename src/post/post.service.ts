@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Posts, Users, Comments } from 'src/utils/typeorm';
@@ -20,6 +25,8 @@ export class PostService {
     // const user = await this.userRepository.findOne(userId, {
     //   relations: ['user'],
     // });
+    console.log('newsPostData', newsPostData);
+
     const user = await this.userRepository.findOne(userId);
 
     //const category = await this.newsCategoryRepository.findOne(categoryId, {relations:['member']});
@@ -59,6 +66,18 @@ export class PostService {
     }
 
     return post;
+  }
+
+  async getUserPosts(userId: number) {
+    try {
+      const userPosts = await this.postRepository.find({
+        where: { user: userId },
+        relations: ['comments'], // Nếu bạn muốn lấy cả thông tin comments
+      });
+      return userPosts;
+    } catch (error) {
+      throw new Error('Failed to fetch user posts');
+    }
   }
 
   //   async updatePost(postId: number, updatePostData: UpdatePostDto) {
@@ -172,4 +191,34 @@ export class PostService {
   //       .getCount();
   //     return { query, queryCount };
   //   }
+
+  async likeComment(id: number, userId: number) {
+    const comment = await this.postRepository.findOne(id);
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    // Kiểm tra xem người dùng đã like hay chưa
+    // Kiểm tra xem trường likedUsers có giá trị không và là một mảng
+    const hasLiked =
+      comment.likedUsers && Array.isArray(comment.likedUsers)
+        ? comment.likedUsers.includes(userId)
+        : false;
+
+    if (hasLiked) {
+      // Nếu đã like, hủy like và giảm số lượng likes
+      comment.like -= 1;
+      comment.likedUsers = comment.likedUsers.filter((id) => id !== userId);
+    } else {
+      // Nếu chưa like, thực hiện hành động like và tăng số lượng likes
+      comment.like += 1;
+      if (!comment.likedUsers) {
+        comment.likedUsers = [];
+      }
+      comment.likedUsers.push(userId);
+    }
+
+    return await this.postRepository.save(comment);
+  }
 }

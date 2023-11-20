@@ -13,10 +13,12 @@ export type ValidateUserDetails = {
 };
 
 export type CreateUserDetails = {
-  TenDangNhap: string;
   HoVaTen: string;
-  MatKhau: string;
+  NgaySinh: Date;
+  GioiTinh: number;
   Email: string;
+  TenDangNhap: string;
+  MatKhau: string;
 };
 
 export type editUser = {

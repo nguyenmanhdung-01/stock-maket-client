@@ -2,6 +2,7 @@ import {
   Controller,
   Inject,
   Post,
+  Put,
   Body,
   Get,
   Param,
@@ -22,7 +23,7 @@ export class PostController {
   @Post()
   createPost(@Body() newPostDto: CreatePostDto) {
     const { userId, ...postData } = newPostDto;
-    //console.log('đây là id', userId);
+    console.log('đây là id', userId);
 
     return this.postsService.createPost(postData, userId);
   }
@@ -41,6 +42,11 @@ export class PostController {
     return post;
   }
 
+  @Get(':userId/posts')
+  async getUserPosts(@Param('userId') userId: number) {
+    return this.postsService.getUserPosts(userId);
+  }
+
   @Delete('/delete/:id')
   deletePost(@Param('id') postId: number) {
     return 'đã xóa' + this.postsService.deletePost(postId);
@@ -51,5 +57,12 @@ export class PostController {
     //console.log(ids);
 
     return await this.postsService.deleteMultiple(ids);
+  }
+
+  @Put('/:id/like')
+  async likeComment(@Param('id') id: number, @Body() request: any) {
+    const userId = request.userId;
+    console.log('userId', userId);
+    return await this.postsService.likeComment(id, userId);
   }
 }

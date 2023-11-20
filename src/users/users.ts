@@ -11,4 +11,5 @@ export interface IUserService {
   saveNewsIds(newsId: string, userId: number);
   getNews(userId: number): Promise<News[]>;
   removedNews(userId: number, newsIdToRemove: string);
+  updateAvatarUser(userId: string, avatarUrl: string);
 }
