@@ -13,9 +13,12 @@ import axios from "axios";
 import useAuth from "../../../hooks/redux/auth/useAuth";
 import EmptyState from "../../../components/EmptyState/EmptyState";
 import { toast } from "react-toastify";
+import { formatDay } from "../../../utils/constants/formatDay";
+import { useNavigate } from "react-router-dom";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const NewsSaved = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const { auth } = useAuth();
   const getData = async () => {
@@ -42,6 +45,7 @@ const NewsSaved = () => {
       );
       console.log("response", response);
       toast.success("Xóa bài viết đã lưu thành công");
+      getData();
     } catch (error) {
       toast.error("Lỗi máy chủ");
     }
@@ -55,53 +59,70 @@ const NewsSaved = () => {
       <div className=" grid grid-cols-2 gap-5">
         {data.length > 0 ? (
           data.map((item, idx) => (
-            <div
-              key={idx}
-              className="flex p-2 bg-navy-600 dark:bg-slate-50 dark:text-black text-white border dark:border-navy-900 border-navy-700 rounded-md relative"
-            >
-              <div className=" absolute right-0 mr-3 text-lg">
-                <FontAwesomeIcon
-                  icon={faTrashAlt}
-                  onClick={() => {
-                    deleteNew(item);
-                  }}
+            <div className=" grid grid-cols-4 relative bg-navy-600 dark:bg-slate-50 dark:text-black text-white border dark:border-navy-900 border-navy-700 rounded-md group/item">
+              <div key={idx} className="flex p-2  relative">
+                <img
+                  src={item.image}
+                  className=" w-[100px] h-[100px] object-cover"
+                  alt=""
                 />
               </div>
-              <img
-                src={item.image}
-                className=" w-[100px] h-[100px] object-cover"
-                alt=""
-              />
-              <div className=" ml-3 w-full">
-                <h2 className="text-left text-xl truncate">{item?.title}</h2>
-                <p className="truncate">{item?.subcontent}</p>
+              <div className="w-full col-span-3 px-2 relative ">
+                <h2 className="text-left text-xl line-clamp-1">
+                  {item?.title}
+                </h2>
+                <p className="truncate line-clamp-2">{item?.subcontent}</p>
                 <div className=" flex items-center justify-around">
                   <span className=" flex flex-col">
-                    <p className="text-yellow-500">{t("Lượt xem")}</p>
+                    <p className="text-yellow-500 text-center">
+                      {t("Lượt xem")}
+                    </p>
                     <span className=" flex items-center justify-center ">
-                      <b>2</b>
+                      <b>{item?.view}</b>
                       <FontAwesomeIcon className="ml-1" icon={faEye} />
                     </span>
                   </span>
                   <span className=" flex flex-col">
-                    <p className="text-yellow-500">{t("Nguồn")}</p>
+                    <p className="text-yellow-500 text-center">{t("Nguồn")}</p>
                     <span className=" flex items-center justify-center">
-                      <b>abc.com</b>
+                      <b>{item?.source}</b>
                     </span>
                   </span>
                   <span className=" flex flex-col">
-                    <p className="text-yellow-500">{t("Thời gian")}</p>
+                    <p className="text-yellow-500 text-center">
+                      {t("Thời gian")}
+                    </p>
                     <span className=" flex items-center justify-center">
-                      <b>ai đó đã tải lên</b>
-                      <FontAwesomeIcon className="ml-1" icon={faCalendarDays} />
+                      <b>{formatDay(item.created_at)}</b>
                     </span>
                   </span>
                 </div>
               </div>
+              <div className="h-full w-full hidden bg-slate-500 absolute top-0 group-hover/item:flex group-hover/item:bg-opacity-80 flex-col rounded-md items-center justify-center transition-all">
+                <button
+                  onClick={() => {
+                    deleteNew(item);
+                  }}
+                  className="px-3 py-2 bg-red-500 rounded-2xl mb-2 hover:bg-red-700"
+                >
+                  Xóa
+                  <FontAwesomeIcon icon={faTrashAlt} className="ml-1" />
+                </button>
+                <button
+                  onClick={() => {
+                    navigate(`/${item.slug}`);
+                  }}
+                  className="px-3 py-2 bg-blue-500 rounded-2xl hover:bg-blue-700 dark:hover:bg-blue-700"
+                >
+                  Chi tiết
+                </button>
+              </div>
             </div>
           ))
         ) : (
-          <EmptyState />
+          <div className=" col-span-2">
+            <EmptyState />
+          </div>
         )}
       </div>
     </Card>

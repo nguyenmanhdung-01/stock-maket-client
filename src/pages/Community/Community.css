@@ -1,24 +1,23 @@
-.rules::before {
+.rules:not(:last-child)::before {
   content: "";
   display: block;
   position: absolute;
   left: 4px;
   top: 40px;
-  height: 60px;
-
-  width: 2px;
-  background-color: #ccc;
+  height: calc(100% - 25px);
+  width: 3px;
+  background-color: #555555;
 }
 
-.rules_two:not(:last-child)::before {
+.rules_two::before {
   content: "";
   display: block;
   position: absolute;
   left: -16px;
   top: 10px;
-  height: calc(100% - 2px);
-  width: 2px;
-  background-color: #ccc;
+  height: calc(100% - 100px);
+  width: 3px;
+  background-color: #555555;
 }
 
 .rules_two::after {
@@ -29,9 +28,20 @@
   top: -2px;
   height: 20px;
   border-bottom-left-radius: 10px;
-  border-left: #ccc 3px solid;
+  border-left: #555555 3px solid;
   width: 15px;
   background-color: transparent;
+}
+
+.line:not(:last-child)::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 4px;
+  top: 35px;
+  height: calc(100% - 25px);
+  width: 3px;
+  background-color: #555555;
 }
 
 .line::after {
@@ -42,18 +52,7 @@
   top: -2px;
   height: 20px;
   border-bottom-left-radius: 10px;
-  border-left: #ccc 3px solid;
+  border-left: #555555 3px solid;
   width: 15px;
   background-color: transparent;
-}
-
-.line:not(:last-child)::before {
-  content: "";
-  display: block;
-  position: absolute;
-  left: -16px;
-  top: 10px;
-  height: calc(100% - 4px);
-  width: 2px;
-  background-color: #ccc;
 }

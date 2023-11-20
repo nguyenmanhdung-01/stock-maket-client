@@ -23,37 +23,60 @@ const InsertPost = () => {
   const onSubmit = async (data) => {
     try {
       let image = null;
-      const formData = new FormData();
-      formData.append("file", data.image[0]);
-      await axios
-        .post(`http://giamngheo.bkt.net.vn/file/upload`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((response) => {
-          // Xử lý phản hồi sau khi tải lên thành công
-          image = response.data?.file_path;
-          //console.log("image: " + image);
+      if (data.image[0]) {
+        const formData = new FormData();
+        formData.append("file", data.image[0]);
+        await axios
+          .post(`http://giamngheo.bkt.net.vn/file/upload`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            // Xử lý phản hồi sau khi tải lên thành công
+            image = response.data?.file_path;
+            //console.log("image: " + image);
 
-          const value = {
-            ...data,
-            content: content,
-            image,
-            userId: auth.userID.id,
-          };
-          return axios.post(`${DOMAIN}/post/`, value);
-        })
-        .then(() => {
-          // Cập nhật dữ liệu mới nhất tại đây
-          toast.success("Thêm Bài Viết Thành Công");
-          // fetchData();
-          // setOpen(false);
-        })
-        .catch((error) => {
-          // Xử lý lỗi trong quá trình tải lên
-          console.error("Upload error:", error);
-        });
+            const value = {
+              ...data,
+              content: content,
+              image,
+              userId: auth.userID.id,
+            };
+            return axios.post(`${DOMAIN}/post/`, value);
+          })
+          .then(() => {
+            // Cập nhật dữ liệu mới nhất tại đây
+            toast.success("Thêm Bài Viết Thành Công");
+            // fetchData();
+            // setOpen(false);
+          })
+          .catch((error) => {
+            // Xử lý lỗi trong quá trình tải lên
+            console.error("Upload error:", error);
+          });
+      } else {
+        image = data.image[0];
+        const value = {
+          ...data,
+          content: content,
+          userId: auth.userID.id,
+          image,
+        };
+        await axios
+          .post(`${DOMAIN}/post/`, value)
+
+          .then(() => {
+            // Cập nhật dữ liệu mới nhất tại đây
+            toast.success("Thêm Bài Viết Thành Công");
+            // fetchData();
+            // setOpen(false);
+          })
+          .catch((error) => {
+            // Xử lý lỗi trong quá trình tải lên
+            console.error("Upload error:", error);
+          });
+      }
     } catch (error) {
       toast.error("Lỗi không thể thêm bài viết");
     }
@@ -98,7 +121,8 @@ const InsertPost = () => {
         <div class="mb-6">
           <input
             {...register("image", {
-              required: "Bạn chưa chọn file",
+              // required: "Bạn chưa chọn file",
+              required: false,
             })}
             type="file"
             accept=".jpg,.jpeg,.png"
