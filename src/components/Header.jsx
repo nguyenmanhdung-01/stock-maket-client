@@ -81,11 +81,11 @@ const Header = () => {
                   <img
                     src={
                       auth?.userID.Avatar !== null
-                        ? auth?.userID.Avatar
+                        ? `/uploads/${auth?.userID.Avatar}`
                         : "/assets/images/img_user.png"
                     }
                     alt=""
-                    className="bg-white max-w-[28px] max-h-[28px] p-1 rounded-full"
+                    className="bg-white w-[30px] h-[30px] border border-white rounded-full object-cover"
                   />
                 }
                 ref={dropdownRef}

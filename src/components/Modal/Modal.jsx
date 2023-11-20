@@ -22,7 +22,7 @@ export default function Modal({
     <Transition.Root show={open} as={Fragment}>
       <Dialog
         as="div"
-        className={`${className ? className : ""}relative z-40`}
+        className={`${className ? className : ""}relative z-[2000]`}
         initialFocus={cancelButtonRef}
         onClose={setOpen}
       >
@@ -52,7 +52,7 @@ export default function Modal({
               <Dialog.Panel
                 className={`${
                   classNameChildren ? classNameChildren : " w-[500px]"
-                } max-h-[700px] overflow-y-auto m-auto relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg`}
+                } max-h-[700px] overflow-y-auto m-auto relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl`}
               >
                 <div className="bg-white px-4 pb-4 pt-2 sm:p-6 sm:pb-4">
                   <div className="sm:flex sm:items-start">
