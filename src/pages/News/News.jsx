@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { formatDay } from "../../utils/constants/formatDay";
 import EmptyState from "../../components/EmptyState/EmptyState";
+import Card from "../../components/Card";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const News = () => {
   const [data, setData] = useState([]);
@@ -28,13 +29,12 @@ const News = () => {
     fetchData();
   }, []);
   return (
-    <div>
+    <Card>
       <Breadcrumbs title={"Tin tức"} />
       <div className=" py-3">
         {loading ? (
           <LoadingPage />
-        ) : (
-          data &&
+        ) : data && data.length > 0 ? (
           data.map((item) => (
             <div
               key={item.category?.news_category_id}
@@ -89,9 +89,11 @@ const News = () => {
               )}
             </div>
           ))
+        ) : (
+          <EmptyState />
         )}
       </div>
-    </div>
+    </Card>
   );
 };
 

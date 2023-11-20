@@ -30,6 +30,9 @@ import User from "./pages/User/User";
 import ContactManagerDetail from "./pages/Admin/Views/ContactManager/ContactManagerDetail.jsx";
 import NewDetail from "./pages/News/View/NewsDetail.jsx";
 import NewContentDetail from "./pages/News/View/NewContentDetail.jsx";
+import SearchPage from "./pages/search/index.jsx";
+import PostDetail from "./pages/Community/components/PostDetail.jsx";
+import YourPost from "./pages/Community/components/YourPost.jsx";
 const AppLayout = () => {
   return (
     <Routes>
@@ -42,11 +45,16 @@ const AppLayout = () => {
         <Route path="/bieudophamvicot" element={<BieuDoCotRange />} />
         <Route path="/bieudoOHLC" element={<BieuDoOHLC />} />
         <Route path="/aapl-ohlcv" element={<Heikin_Ashi />} />
+
         <Route path="/community" element={<Community />} />
+        <Route path="/chi-tiet-bai-viet/:id" element={<PostDetail />} />
+        <Route path="/community/bai-viet-cua-ban" element={<YourPost />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/news" element={<News />} />
         <Route path="/news/:slug" element={<NewDetail />} />
         <Route path="/:slug" element={<NewContentDetail />} />
+
+        <Route path="/search" element={<SearchPage />} />
 
         <Route path="/user-info/:id" element={<User />} />
       </Route>
