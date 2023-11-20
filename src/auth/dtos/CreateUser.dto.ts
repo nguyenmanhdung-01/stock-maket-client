@@ -8,7 +8,7 @@ export class CreateUserDto {
   NgaySinh: Date;
 
   @IsNotEmpty()
-  GioiTinh: string;
+  GioiTinh: number;
 
   Email: string;
 

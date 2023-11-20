@@ -35,6 +35,9 @@ export class Posts {
   @Column({ default: 0 })
   like: number;
 
+  @Column('json', { nullable: true })
+  likedUsers: any;
+
   @Column({ default: false })
   IsRemoved: boolean;
 

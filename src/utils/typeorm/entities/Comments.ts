@@ -13,18 +13,21 @@ export class Comments {
   @ManyToOne(() => Users)
   user: Users;
 
-  @Column()
+  @Column({ nullable: true })
   father_id: number;
 
-  @Column()
+  @Column({ type: 'longtext' })
   content: string;
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column()
+  @Column({ default: false })
   status: number;
 
-  @Column()
+  @Column({ default: 0 })
   liked: number;
+
+  @Column('json', { nullable: true })
+  likedUsers: any;
 }

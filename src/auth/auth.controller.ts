@@ -12,14 +12,14 @@ import {
 import { instanceToPlain } from 'class-transformer';
 import { IAuthService } from './auth';
 import { IUserService } from 'src/users/users';
-import { Services } from 'src/utils/contants';
+import { Routes, Services } from 'src/utils/contants';
 import { CreateUserDto } from './dtos/CreateUser.dto';
 import JwtAuthenticationGuard from './utils/jwt/jwt-authentication.guard';
 import { RequestWithUser, ValidateUserDetails } from 'src/utils/types';
 import { LocalAuthGuard } from './utils/local/LocalGuards';
 import { AuthUser } from 'src/utils/decorators';
 
-@Controller('auth')
+@Controller(Routes.AUTH)
 export class AuthController {
   constructor(
     @Inject(Services.AUTH) private authService: IAuthService,
@@ -42,7 +42,7 @@ export class AuthController {
     }
     const payload = { username: user.TenDangNhap };
 
-    console.log('payload', payload);
+    // console.log('payload', payload);
 
     const token = await this.authService.generateToken(payload);
     return { user: request.user, token };

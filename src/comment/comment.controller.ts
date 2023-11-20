@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Put,
 } from '@nestjs/common';
 import { ICommentService } from './comment';
 import { CreateCommentDto } from './dtos/comment.dto';
@@ -61,5 +62,12 @@ export class CommentController {
     const result =
       await this.commentService.deleteManyComments(commentDeleteId);
     return result;
+  }
+
+  @Put('/:id/like')
+  async likeComment(@Param('id') id: number, @Body() request: any) {
+    const userId = request.userId;
+    console.log('userId', userId);
+    return await this.commentService.likeComment(id, userId);
   }
 }

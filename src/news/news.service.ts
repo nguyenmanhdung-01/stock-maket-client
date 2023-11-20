@@ -129,7 +129,6 @@ export class NewsService {
     try {
       const query = await this.newsPostRepository
         .createQueryBuilder('newsPost')
-        .where('newsPost.status = :status', { status: true })
         .andWhere(
           '(newsPost.title LIKE :keyword OR newsPost.subcontent LIKE :keyword)',
           { keyword: `%${keyword}%` },
@@ -143,8 +142,7 @@ export class NewsService {
         .where(
           '(newsPost.title LIKE :keyword OR newsPost.subcontent LIKE :keyword)',
           { keyword: `%${keyword}%` },
-        )
-        .andWhere('newsPost.status = :status', { status: true });
+        );
 
       // .getCount();
 

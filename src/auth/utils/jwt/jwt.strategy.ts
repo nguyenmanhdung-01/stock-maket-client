@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Inject } from '@nestjs/common';
+import { Inject, UnauthorizedException } from '@nestjs/common';
 import { Services } from 'src/utils/contants';
 import { ConfigService } from '@nestjs/config';
 import { PayloadgenerateToken } from 'src/utils/types';
@@ -18,6 +18,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(userName: PayloadgenerateToken) {
-    return this.userService.findByUsername(userName.username);
+    const user = await this.userService.findByUsername(userName.username);
+    if (!user) {
+      // Nếu không tìm thấy người dùng
+      throw new UnauthorizedException('Unauthorized', 'Invalid user.');
+    }
+    return user;
   }
 }
