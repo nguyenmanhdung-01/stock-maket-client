@@ -27,7 +27,7 @@ const Search = () => {
     }
   };
   return (
-    <di className="mr-8">
+    <div className="mr-8">
       <form action="">
         <div className="flex items-center border-solid border-[2px] border-slate-200 rounded-md">
           <input
@@ -48,7 +48,7 @@ const Search = () => {
           />
         </div>
       </form>
-    </di>
+    </div>
   );
 };
 
