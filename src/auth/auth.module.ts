@@ -34,5 +34,11 @@ import { RolesGuard } from './utils/role/roles.guard';
       useClass: AuthService,
     },
   ],
+  exports: [
+    {
+      provide: Services.AUTH,
+      useClass: AuthService,
+    },
+  ],
 })
 export class AuthModule {}
