@@ -12,6 +12,7 @@ import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import { PhanQuyenModule } from './phan-quyen/phan-quyen.module';
 import { NhomQuyenModule } from './nhom-quyen/nhom-quyen.module';
+import { NotificationModule } from './notification/notification.module';
 import entities from './utils/typeorm';
 
 let envFilePath = '.env.development';
@@ -42,6 +43,7 @@ if (process.env.ENVIRONMENT === 'PRODUCTION') envFilePath = '.env.production';
     CommentModule,
     PhanQuyenModule,
     NhomQuyenModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],
