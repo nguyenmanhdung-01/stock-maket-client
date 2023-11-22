@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,7 @@ import {
 import useAuth from "../hooks/redux/auth/useAuth";
 import { BsArrowBarUp } from "react-icons/bs";
 import localStorageUtils, { KeyStorage } from "../utils/local-storage";
+import socket from "../socketService";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -21,24 +22,20 @@ const Header = () => {
   const dropdownRef = React.useRef(null);
   const { auth } = useAuth();
   // console.log("auth1", auth);
-  const [mode, setMode] = useState("dark");
-  const handleModeChange = (newMode) => {
-    // console.log("Chế độ mới:", newMode);
-    setMode(newMode);
-    const elementsToChange = document.querySelectorAll(".dark");
-
-    // Duyệt qua danh sách các phần tử và cập nhật thuộc tính CSS
-    elementsToChange.forEach((element) => {
-      if (newMode === "light") {
-        element.style.backgroundColor = "#ffffff";
-        element.style.color = "#000000";
-      } else {
-        element.style.backgroundColor = "#000000";
-        element.style.color = "#ffffff";
-      }
+  useEffect(() => {
+    // Lắng nghe sự kiện từ máy chủ
+    socket.on("connect", () => {
+      console.log("Connected to server");
     });
-  };
 
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
   const closeDropdown = () => {
     if (dropdownRef.current) {
       dropdownRef.current.closeDropdown();
