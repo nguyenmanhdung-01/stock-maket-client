@@ -62,7 +62,7 @@ export class PostController {
   @Put('/:id/like')
   async likeComment(@Param('id') id: number, @Body() request: any) {
     const userId = request.userId;
-    console.log('userId', userId);
+    // console.log('userId', userId);
     return await this.postsService.likeComment(id, userId);
   }
 }

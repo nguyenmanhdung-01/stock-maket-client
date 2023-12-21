@@ -18,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(userName: PayloadgenerateToken) {
-    const user = await this.userService.findByUsername(userName.username);
+    const user = await this.userService.findByUsername(userName.TenDangNhap);
     if (!user) {
       // Nếu không tìm thấy người dùng
       throw new UnauthorizedException('Unauthorized', 'Invalid user.');

@@ -10,6 +10,7 @@ export enum Routes {
   COMMENT = 'comment',
   PHANQUYEN = 'phanquyen',
   NHOMQUYEN = 'nhomquyen',
+  NOTIFICATION = 'notification',
 }
 export enum Services {
   AUTH = 'AUTH_SERVICE',
@@ -24,4 +25,5 @@ export enum Services {
   COMMENT = 'COMMENT_SERVICE',
   PHANQUYEN = 'PHANQUYEN_SERVICE',
   NHOMQUYEN = 'NHOMQUYEN_SERVICE',
+  NOTIFICATION = 'NOTIFICATION_SERVICE',
 }

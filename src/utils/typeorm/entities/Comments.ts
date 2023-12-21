@@ -7,7 +7,7 @@ export class Comments {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Posts)
+  @ManyToOne(() => Posts, { cascade: true })
   post: Posts;
 
   @ManyToOne(() => Users)
