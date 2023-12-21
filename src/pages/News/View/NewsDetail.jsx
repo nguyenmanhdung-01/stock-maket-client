@@ -79,8 +79,8 @@ const NewDetail = () => {
           subtitle={props ? props.name : ""}
           link={"/news"}
         />
-        <div className=" pb-14 grid grid-cols-4 gap-3 pt-4 px-6">
-          <div className=" col-span-3 phone:col-span-4 desktop:col-span-3 laptop:col-span-3 tablet:col-span-3">
+        <div className=" pb-14 grid grid-cols-5 gap-3 pt-4 px-6">
+          <div className=" col-span-3">
             <HeaderTitle title={props ? props.name : ""} />
             <div className="desktop:pr-5 list phone:pr-0">
               {loading ? (
@@ -92,11 +92,15 @@ const NewDetail = () => {
                       <div
                         key={post.news_id}
                         onClick={() => navigate(`/${post.slug}`)}
-                        className="grid grid-cols-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 cursor-pointer"
+                        className="grid grid-cols-4 bg-white my-2 border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 cursor-pointer"
                       >
                         <img
-                          className="object-cover max-w-full rounded-t-lg md:rounded-none md:rounded-l-lg col-span-1"
-                          src={post ? post.image : ""}
+                          className="object-cover max-w-full h-full rounded-t-lg md:rounded-none md:rounded-l-lg col-span-1"
+                          src={
+                            post
+                              ? post.image
+                              : "/assets/images/default-image.avif"
+                          }
                           alt=""
                         />
                         <div className=" p-4 leading-normal w-full col-span-3">
@@ -140,8 +144,9 @@ const NewDetail = () => {
               />
             )}
           </div>
-
-          <RightBar />
+          <div className="col-span-2">
+            <RightBar />
+          </div>
         </div>
       </div>
     </Card>

@@ -8,11 +8,15 @@ import { useTranslation } from "react-i18next";
 import useAuth from "../../../hooks/redux/auth/useAuth";
 import { IoSend } from "react-icons/io5";
 import { useForm } from "react-hook-form";
+import { io } from "socket.io-client";
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import socket from "../../../socketService";
 
 const DOMAIN = process.env.REACT_APP_STOCK;
 dayjs.extend(relativeTime);
+
 const CommentItem = ({ comment, fetchData }) => {
-  // console.log("fetchData", fetchData);
+  // console.log("comment", comment);
   const {
     register,
     handleSubmit,
@@ -39,13 +43,26 @@ const CommentItem = ({ comment, fetchData }) => {
     }
   }, [usersWhoLiked]);
 
-  const handleLike = async (id) => {
+  const handleLike = async (comment) => {
     try {
-      console.log(id);
-      const response = await axios.put(`${DOMAIN}/comment/${id}/like`, {
+      // console.log(id);
+      const response = await axios.put(`${DOMAIN}/comment/${comment.id}/like`, {
         userId: auth.userID.id,
       });
-      // console.log("response", response);
+      console.log("response", response);
+      const hasLike = response.data.likedUsers.some(
+        (userId) => userId === auth.userID.id
+      );
+      if (hasLike) {
+        socket.emit("likePost", {
+          user: auth.userID,
+          post: response.data,
+          message: "Đã thích bình luận của bạn:",
+          recipientId: comment.user?.id,
+          time: new Date(),
+          link: `/chi-tiet-bai-viet/${comment.post?.post_id}`,
+        });
+      }
       setLiked(!liked);
       setLikesCount(response.data.liked);
 
@@ -83,18 +100,28 @@ const CommentItem = ({ comment, fetchData }) => {
         .trim();
       const values = {
         ...data,
-        content: `<a class="link_user" href="user-info/${auth?.userID.id}" target="_blank">${textChildren}</a> ${text}`,
+        content: `<a class="link_user" href="/user-info/${auth?.userID.id}" target="_blank">${textChildren}</a> ${text}`,
         father_id: comment.id,
         // TODO: cần lấy theo id của người đăng nhập
         user: auth.userID.id,
         post: comment.post?.post_id,
       };
-      await axios.post(
+      const response = await axios.post(
         `${DOMAIN}/comment/createComment`,
 
         values,
         { withCredentials: true }
       );
+      // console.log("Response", response);
+
+      socket.emit("replyPost", {
+        user: auth.userID,
+        post: comment.post,
+        message: "Đã trả lời về bình luận của bạn",
+        recipientId: comment.user?.id,
+        time: new Date(),
+        link: `/chi-tiet-bai-viet/${comment.post?.post_id}`,
+      });
 
       reset({ content: "" });
       if (fetchData) {
@@ -114,11 +141,15 @@ const CommentItem = ({ comment, fetchData }) => {
           comment.father_id ? "line" : ""
         }`}
       >
-        <div className="max-w-[35px] max-h-[35px] mr-2">
+        <div className=" mr-2">
           <img
-            src="/assets/images/img_user.png"
+            src={
+              comment.user?.Avatar !== null
+                ? `${comment.user?.Avatar}`
+                : "/assets/images/img_user.png"
+            }
             alt=""
-            className="rounded-full border border-white"
+            className="rounded-full border w-[40px] max-h-[35px] border-white object-cover"
           />
         </div>
         <div className="w-full">
@@ -134,7 +165,7 @@ const CommentItem = ({ comment, fetchData }) => {
               className={`rounded-lg px-2 hover:bg-slate-200 ${
                 liked ? "text-blue-500" : ""
               }`}
-              onClick={() => handleLike(comment.id)}
+              onClick={() => handleLike(comment)}
             >
               {liked ? "Đã thích" : "Thích"}
             </button>

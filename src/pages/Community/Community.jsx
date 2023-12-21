@@ -2,15 +2,17 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+
 import "./Community.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComment, faThumbsUp } from "@fortawesome/free-regular-svg-icons";
 import {
   faNewspaper,
-  faRss,
   faShare,
+  faTrash,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import EmptyState from "../../components/EmptyState/EmptyState";
 
 import useAuth from "../../hooks/redux/auth/useAuth";
 import InsertPost from "./components/InsertPost";
@@ -20,19 +22,27 @@ import axios from "axios";
 import CommentList from "./components/CommentList";
 import { useNavigate } from "react-router-dom";
 import LoadingPage from "../../components/LoadingPage";
+import { AiOutlineCheckCircle } from "react-icons/ai";
+import { toast } from "react-toastify";
+import { getRoleGroup } from "../../utils/constants/formatStringName";
+import socket from "../../socketService";
+
 const DOMAIN = process.env.REACT_APP_STOCK;
 dayjs.extend(relativeTime);
+
 const Community = () => {
   const { t } = useTranslation();
   const { auth } = useAuth();
   const navigate = useNavigate();
+  const nhomQuyen = getRoleGroup(auth);
+  // console.log("nhomQuyen", nhomQuyen);
   const [visible, setVisible] = useState(false);
-  const [isFormVisible, setFormVisible] = useState(false);
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [visiblePosts, setVisiblePosts] = useState(5);
   const [commentFormsVisibility, setCommentFormsVisibility] = useState({});
+  const [openModalDelete, setOpenModalDelete] = useState(false);
   const containerRef = useRef(null);
   // Giả sử bạn có một danh sách các người dùng đã like từ API
   const inputRef = useRef(null);
@@ -57,8 +67,8 @@ const Community = () => {
       // Tính tổng số lượt thích cho từng bài viết
       const postsWithLikes = posts.map((post) => {
         const totalLikes = post.like || 0;
-        const currentUserLiked = post.likedUsers.some(
-          (userId) => userId === auth.userID.id
+        const currentUserLiked = post.likedUsers?.some(
+          (userId) => userId === auth.userID?.id
         ); // Lượt thích của bài viết, nếu không có sẽ là 0
         return { ...post, like: totalLikes, userLiked: currentUserLiked }; // Thêm trường totalLikes vào object post
       });
@@ -114,21 +124,52 @@ const Community = () => {
         userId: auth.userID.id,
       });
       const updatedPost = response.data;
-      console.log("updated post", updatedPost);
+
+      // console.log("updated post", updatedPost);
       // Cập nhật lại tổng số lượt thích của bài viết từ response từ server
+      // Gửi thông báo tới server rằng đã thực hiện like thành công
+      const hasLiked = response.data.likedUsers.some(
+        (userId) => userId === auth.userID.id
+      );
+
+      if (hasLiked) {
+        socket.emit("likePost", {
+          user: auth.userID,
+          post: response.data,
+          message: "Đã thích bài viết của bạn",
+          recipientId: response.data.user?.id,
+          time: new Date(),
+          link: `/chi-tiet-bai-viet/${response.data.post_id}`,
+        });
+      }
       fetchData();
     } catch (error) {
       console.log(error);
     }
   };
 
+  const handleDeletePost = async (post) => {
+    try {
+      const response = await axios.delete(
+        `${DOMAIN}/post/delete/${post.post_id}`
+      );
+      console.log("success", response);
+      fetchData();
+      toast.success("Đã xóa bài viết thành công");
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  // Lắng nghe sự kiện 'likePost' từ server
+
   return (
-    <div className=" grid grid-cols-4 gap-3 relative bgr-white dark:text-white dark:bg-slate-800">
-      <div className=" relative col-span-1">
+    <div className=" grid grid-cols-4 sm:grid-cols-1 gap-3 relative bgr-white dark:text-white dark:bg-slate-800">
+      <div className=" relative col-span-1 xl:col-span-1 lg:col-span-1 md:hidden sm:hidden">
         <div className=" sticky top-[245px] bg-white dark:bg-gray-800  text-lg shadow-lg p-3 border dark:border-gray-600 rounded-md">
           <div
             onClick={() => navigate("/community/bai-viet-cua-ban")}
-            className="flex items-center my-1 p-2 hover:bg-slate-200 dark:hover:text-black rounded-sm"
+            className="flex items-center my-1 p-2 hover:bg-slate-200 dark:hover:text-black rounded-sm cursor-pointer"
           >
             <FontAwesomeIcon className="mr-1 " icon={faNewspaper} />
             <span>{t("Bài viết của bạn")}</span>
@@ -150,7 +191,7 @@ const Community = () => {
               setOpen={setOpen}
               title={"Thêm mới bài viết của bạn"}
             >
-              <InsertPost />
+              <InsertPost setOpen={setOpen} fetchData={fetchData} />
             </ModalV1>
             <div
               className=" relative w-full max-h-[350px] overflow-y-auto"
@@ -165,23 +206,41 @@ const Community = () => {
                 </span>
               </div> */}
               <div className=" mt-5 pt-4 border-t-2 border-slate-500">
-                {data &&
+                {data && data.length > 0 ? (
                   data.slice(0, visiblePosts).map((item) => (
                     <div key={item.post_id}>
-                      <div className=" flex items-center">
-                        <div className=" max-w-[40px] max-h-[40px] mr-2">
+                      <div className=" flex items-center justify-between">
+                        <div className="flex items-center ">
                           <img
-                            src="/assets/images/img_user.png"
+                            src={
+                              item.user?.Avatar !== null
+                                ? `${item.user?.Avatar}`
+                                : "/assets/images/img_user.png"
+                            }
                             alt=""
-                            className=" rounded-full"
+                            className="w-[60px] max-h-[60px] rounded-full mr-2 border border-2px border-white object-cover"
                           />
+                          <div>
+                            <h3 className=" font-semibold text-lg">
+                              {item.user?.HoVaTen}
+                            </h3>
+                            <span>{t(dayjs(item.created_at).fromNow())}</span>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className=" font-semibold text-lg">
-                            {item.user?.HoVaTen}
-                          </h3>
-                          <span>{t(dayjs(item.created_at).fromNow())}</span>
-                        </div>
+                        {nhomQuyen?.includes(18) ||
+                        item.user?.id == auth.userID?.id ? (
+                          <button
+                            onClick={() => setOpenModalDelete(true)}
+                            className="mr-3 p-1"
+                          >
+                            <FontAwesomeIcon
+                              className="dark:text-white"
+                              icon={faTrash}
+                            />
+                          </button>
+                        ) : (
+                          ""
+                        )}
                       </div>
                       <div>
                         <div
@@ -262,12 +321,35 @@ const Community = () => {
                         <CommentList
                           inputRef={inputRef}
                           data={item.comments}
-                          postId={item.post_id}
+                          post={item}
                           fetchData={fetchData}
                         />
                       )}
+                      <ModalV1
+                        title={
+                          <AiOutlineCheckCircle className="m-auto w-10 h-10 text-green-400" />
+                        }
+                        open={openModalDelete}
+                        setOpen={setOpenModalDelete}
+                      >
+                        <h2 className="text-xl my-3">
+                          Bạn có chắc muốn xóa bài viết đã lựa chọn không?
+                        </h2>
+                        <div className="flex justify-center mt-3">
+                          <Button
+                            title={"Có"}
+                            classNameBtn={
+                              "border py-2 px-8 text-base text-white bg-red-500 hover:bg-red-600 border-slate-600 rounded-lg"
+                            }
+                            onClick={() => handleDeletePost(item)}
+                          ></Button>
+                        </div>
+                      </ModalV1>
                     </div>
-                  ))}
+                  ))
+                ) : (
+                  <EmptyState />
+                )}
                 {loading && <LoadingPage />}
               </div>
             </div>

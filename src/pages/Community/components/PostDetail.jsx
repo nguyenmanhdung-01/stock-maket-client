@@ -12,6 +12,7 @@ import { faBookmark } from "@fortawesome/free-regular-svg-icons";
 import useAuth from "../../../hooks/redux/auth/useAuth";
 import { toast } from "react-toastify";
 import RightBar from "../../../components/RightBar/RightBar";
+import CommentList from "./CommentList";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const PostDetail = () => {
   const { auth } = useAuth();
@@ -30,7 +31,7 @@ const PostDetail = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [id]);
   const currentURL = window.location.href;
 
   //   const saveNewsId = async (news) => {
@@ -54,7 +55,7 @@ const PostDetail = () => {
           title={"Bài viết"}
           // sau khi fetch data thì sẽ lấy theo title ở đây
           subtitle={`${postItem && postItem.title}`}
-          link={"/news"}
+          link={"/community"}
           // link sẽ theo thằng category
         />
 
@@ -109,8 +110,10 @@ const PostDetail = () => {
                 }
               /> */}
               </div>
+              <CommentList post={postItem} fetchData={fetchData} />
             </div>
           )}
+
           <div className="phone:hidden laptop:block desktop:block tablet:hidden">
             <RightBar />
           </div>

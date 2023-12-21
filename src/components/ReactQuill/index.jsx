@@ -238,7 +238,7 @@ const ReactQuillEditor = ({ content, setContent }) => {
         onChange={handleChange}
         modules={modules}
         formats={formats}
-        className="border border-slate-400 dark:text-white"
+        className="border border-slate-400"
       />
     </>
   );

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -9,33 +10,26 @@ import Navbar from "./Navbar/Navbar";
 import Dropdown from "./Dropdown";
 import {
   faArrowRightFromBracket,
+  faBars,
   faBell,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "../hooks/redux/auth/useAuth";
-import { BsArrowBarUp } from "react-icons/bs";
 import localStorageUtils, { KeyStorage } from "../utils/local-storage";
-import socket from "../socketService";
+import Notification from "./Notifications";
+import axios from "axios";
+import Sidebar from "./Sidebar/Sidebar";
 
+const DOMAIN = process.env.REACT_APP_STOCK;
 const Header = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const dropdownRef = React.useRef(null);
   const { auth } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+  const [open, setOpen] = useState(false);
   // console.log("auth1", auth);
-  useEffect(() => {
-    // Lắng nghe sự kiện từ máy chủ
-    socket.on("connect", () => {
-      console.log("Connected to server");
-    });
 
-    socket.on("disconnect", () => {
-      console.log("Disconnected from server");
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
   const closeDropdown = () => {
     if (dropdownRef.current) {
       dropdownRef.current.closeDropdown();
@@ -44,8 +38,30 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorageUtils.remove(KeyStorage.AUTH);
-    window.location.reload();
+    localStorage.removeItem("selectedTab");
+    window.location.href = "/";
   };
+
+  const getDataNotifications = async () => {
+    try {
+      const response = await axios.get(`${DOMAIN}/notification/`);
+      const notifications = response.data.filter(
+        (notification) =>
+          notification.recipientId === auth.userID?.id.toString()
+      );
+      setNotifications(notifications);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const unwatchedNotifications = notifications.filter(
+    (notification) => notification.watched === false
+  );
+
+  useEffect(() => {
+    getDataNotifications();
+  }, []);
   return (
     <div className="sticky top-0 z-[2000]">
       <div className="w-full flex items-center justify-end bg-navy-700 py-1 px-32 border-b border-blue-400 dark:border-b-white drop-shadow-xl">
@@ -60,7 +76,7 @@ const Header = () => {
           {auth.userID === undefined ? (
             <>
               <span
-                className="px-3 py-1 rounded-3xl hover:bg-slate-200 hover:text-black mr-2"
+                className="px-3 py-1 rounded-3xl hover:bg-slate-200 hover:text-black cursor-pointer mr-2"
                 onClick={() => navigate("/login-page")}
               >
                 <FontAwesomeIcon
@@ -78,7 +94,7 @@ const Header = () => {
                   <img
                     src={
                       auth?.userID.Avatar !== null
-                        ? `/uploads/${auth?.userID.Avatar}`
+                        ? auth?.userID.Avatar
                         : "/assets/images/img_user.png"
                     }
                     alt=""
@@ -117,52 +133,26 @@ const Header = () => {
 
               <Dropdown
                 button={
-                  <FontAwesomeIcon
-                    icon={faBell}
-                    className="text-xl ml-4 cursor-pointer"
-                  />
+                  <>
+                    <FontAwesomeIcon
+                      icon={faBell}
+                      className="text-2xl ml-4 cursor-pointer"
+                    />
+                    {unwatchedNotifications.length > 0 ? (
+                      <>
+                        <span className="animate-ping  absolute right-0 inline-flex h-3 w-3 rounded-full bg-sky-400 opacity-75"></span>
+                        <span className="absolute right-0 inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                      </>
+                    ) : null}
+                  </>
                 }
                 ref={dropdownRef}
                 animation="origin-[65%_0%] md:origin-top-right transition-all duration-300 ease-in-out"
                 children={
-                  <div className="flex w-[360px] flex-col gap-3 rounded-[20px] bg-white p-4 shadow-xl shadow-shadow-500 dark:!bg-navy-700 dark:text-white dark:shadow-none sm:w-[460px]">
-                    <div className="flex items-center justify-between">
-                      <p className="text-base font-bold text-navy-700 dark:text-white">
-                        Notification
-                      </p>
-                      <p className="text-sm font-bold text-navy-700 dark:text-white">
-                        Mark all read
-                      </p>
-                    </div>
-
-                    <button className="flex w-full items-center">
-                      <div className="flex h-full w-[85px] items-center justify-center rounded-xl bg-gradient-to-b from-brandLinear to-brand-500 py-4 text-2xl text-white">
-                        <BsArrowBarUp />
-                      </div>
-                      <div className="ml-2 flex h-full w-full flex-col justify-center rounded-lg px-1 text-sm">
-                        <p className="mb-1 text-left text-base font-bold text-gray-900 dark:text-white">
-                          New Update: Horizon UI Dashboard PRO
-                        </p>
-                        <p className="font-base text-left text-xs text-gray-900 dark:text-white">
-                          A new update for your downloaded item is available!
-                        </p>
-                      </div>
-                    </button>
-
-                    <button className="flex w-full items-center">
-                      <div className="flex h-full w-[85px] items-center justify-center rounded-xl bg-gradient-to-b from-brandLinear to-brand-500 py-4 text-2xl text-white">
-                        <BsArrowBarUp />
-                      </div>
-                      <div className="ml-2 flex h-full w-full flex-col justify-center rounded-lg px-1 text-sm">
-                        <p className="mb-1 text-left text-base font-bold text-gray-900 dark:text-white">
-                          New Update: Horizon UI Dashboard PRO
-                        </p>
-                        <p className="font-base text-left text-xs text-gray-900 dark:text-white">
-                          A new update for your downloaded item is available!
-                        </p>
-                      </div>
-                    </button>
-                  </div>
+                  <Notification
+                    closeDropDown={closeDropdown}
+                    refreshData={getDataNotifications}
+                  />
                 }
                 classNames={"py-2 top-5 z-auto right-0 drop-shadow-3xl w-max"}
               />
@@ -173,9 +163,25 @@ const Header = () => {
         <SetLanguage />
       </div>
       <div className="banner"></div>
-      <div className=" bg-white dark:bg-slate-800 dark:hover:text-black w-full flex items-center justify-around px-32">
+      <div className=" bg-white dark:bg-slate-800 dark:hover:text-black w-full flex items-center justify-around px-32 xl:flex lg:flex md:hidden sm:hidden">
         <Navbar />
         <Search />
+      </div>
+      <div className="xl:hidden lg:hidden md:block sm:block bg-white dark:bg-slate-800 px-5 py-2 leading-none">
+        {open ? (
+          <FontAwesomeIcon
+            icon={faXmark}
+            className="text-xl transition-all"
+            onClick={() => setOpen(false)}
+          />
+        ) : (
+          <FontAwesomeIcon
+            icon={faBars}
+            className="text-xl transition-all"
+            onClick={() => setOpen(true)}
+          />
+        )}
+        <Sidebar open={open} setOpen={setOpen} />
       </div>
     </div>
   );

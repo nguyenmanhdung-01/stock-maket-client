@@ -30,7 +30,7 @@ export default function ModalV1({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-10 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -47,7 +47,7 @@ export default function ModalV1({
               <Dialog.Panel
                 className={`${
                   classNameChildren ? classNameChildren : " w-[750px]"
-                } max-h-[700px] overflow-y-auto m-auto relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all`}
+                } h-full max-h-[700px] m-auto relative overflow-y-auto transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all`}
               >
                 <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 relative">
                   <button

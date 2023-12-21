@@ -4,17 +4,23 @@ import Card from "../../../../components/Card";
 import axios from "axios";
 import slugify from "slugify";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import Button from "../../../../components/Buttons/Button";
+import { uploadImageToFirebase } from "../../../../utils/constants/uploadImage";
 const DOMAIN = process.env.REACT_APP_STOCK;
 
 const NewsEdit = ({ idItem, fetchDataWithFilter, setOpen }) => {
+  const { register, handleSubmit, setValue } = useForm({ criteriaMode: "all" });
   const [item, setItem] = useState(idItem);
-  console.log(item);
-  const handleFormSubmit = async (data) => {
+  const [isEdit, setIsEdit] = useState(false);
+  const handleIsEditChange = (newValue) => {
+    setIsEdit(newValue);
+  };
+  // console.log(item);
+  const onSubmit = async (data) => {
     // console.log(data);
     try {
-      const formData = new FormData();
-      const { isEdit, ...values } = data;
-      let value = values;
+      let value = data;
 
       const slug = slugify(data.title, {
         replacement: "-", // replace spaces with replacement character, defaults to `-`
@@ -26,17 +32,8 @@ const NewsEdit = ({ idItem, fetchDataWithFilter, setOpen }) => {
       });
       let image = value.image;
       if (isEdit) {
-        formData.append("file", data.image[0]);
-        const responseImgPerson = await axios.post(
-          `http://giamngheo.bkt.net.vn/file/upload`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        image = responseImgPerson.data.file_path;
+        const imageUrl = await uploadImageToFirebase(data.image[0]);
+        image = imageUrl;
       }
       // const value = { ...values, slug, image };
       //console.log("vao form edit: ", { ...value, slug, image });
@@ -91,7 +88,23 @@ const NewsEdit = ({ idItem, fetchDataWithFilter, setOpen }) => {
   ];
   return (
     <Card title={"Chỉnh sửa thông tin bài viết"} className={"py-2 px-3"}>
-      <Form formFields={newsFormFields} onSubmit={handleFormSubmit} />;
+      <form action="" onSubmit={handleSubmit(onSubmit)} className="text-center">
+        <Form
+          formFields={newsFormFields}
+          register={register}
+          setValue={setValue}
+          // handleSubmit={handleSubmit}
+          // onSubmit={onSubmit}
+          onIsEditChange={handleIsEditChange}
+        />
+        <Button
+          className={
+            "col-span-2 mt-3 px-4 bg-blue-500 hover:bg-blue-700 text-[18px] text-white font-semibold justify-center"
+          }
+          title={"Lưu"}
+          type={"submit"}
+        />
+      </form>
     </Card>
   );
 };

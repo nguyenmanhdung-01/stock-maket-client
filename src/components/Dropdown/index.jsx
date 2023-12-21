@@ -31,7 +31,10 @@ const Dropdown = forwardRef((props, ref) => {
   }));
   return (
     <div ref={wrapperRef} className="relative flex">
-      <div className="flex" onMouseDown={() => setOpenWrapper(!openWrapper)}>
+      <div
+        className="flex relative cursor-pointer"
+        onMouseDown={() => setOpenWrapper(!openWrapper)}
+      >
         {button}
       </div>
       <div

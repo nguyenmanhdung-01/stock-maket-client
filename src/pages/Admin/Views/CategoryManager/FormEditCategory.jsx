@@ -30,7 +30,7 @@ const FormEditCategory = ({ newsCategoryEdit, setOpen, fetchData }) => {
         slug,
         isEdit,
       };
-      await axios.put(`${DOMAIN}/api/newscategory/editCategory`, values, {
+      await axios.put(`${DOMAIN}/newscategory/editCategory`, values, {
         withCredentials: true,
       });
       setOpen(false);
@@ -49,7 +49,7 @@ const FormEditCategory = ({ newsCategoryEdit, setOpen, fetchData }) => {
         <div className="w-full relative">
           <input
             type="text"
-            className={`block bg-white rounded focus:outline-none w-full h-[32px] text-[16px] leading-[15px] border-[#cccccc] ${
+            className={`block bg-white rounded focus:outline-none w-full py-2 px-2 text-[16px] leading-[15px] border border-gray-500 ${
               errors.category ? "border-red-500 border-[1px]" : ""
             }`}
             {...register("category", {
