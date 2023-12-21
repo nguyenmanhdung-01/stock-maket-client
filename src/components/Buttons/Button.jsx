@@ -10,7 +10,7 @@ const Button = ({ title, className, onClick, icon, type, classNameBtn }) => {
       <span>{icon}</span>
       <button
         type={type}
-        className={` focus:outline-none text-center ${classNameBtn}`}
+        className={` focus:outline-none rounded-2xl text-center ${classNameBtn}`}
       >
         {title}
       </button>

@@ -20,7 +20,7 @@ module.exports = {
         primary: "20px",
       },
       screens: {
-        sm: "576px",
+        sm: "375px",
         "sm-max": { max: "576px" },
         md: "768px",
         "md-max": { max: "768px" },

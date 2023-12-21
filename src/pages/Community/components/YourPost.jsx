@@ -11,6 +11,7 @@ import CommentList from "./CommentList";
 import { faShare } from "@fortawesome/free-solid-svg-icons";
 import Card from "../../../components/Card";
 import RightBar from "../../../components/RightBar/RightBar";
+import EmptyState from "../../../components/EmptyState/EmptyState";
 
 const DOMAIN = process.env.REACT_APP_STOCK;
 dayjs.extend(relativeTime);
@@ -42,7 +43,7 @@ const YourPost = () => {
       // Tính tổng số lượt thích cho từng bài viết
       const postsWithLikes = posts.map((post) => {
         const totalLikes = post.like || 0;
-        const currentUserLiked = post.likedUsers.some(
+        const currentUserLiked = post.likedUsers?.some(
           (userId) => userId === auth.userID.id
         ); // Lượt thích của bài viết, nếu không có sẽ là 0
         return { ...post, like: totalLikes, userLiked: currentUserLiked }; // Thêm trường totalLikes vào object post
@@ -77,14 +78,18 @@ const YourPost = () => {
     <Card>
       <h1 className=" text-3xl pl-2 pt-2">Bài viết của bạn</h1>
       <div className=" grid grid-cols-3 gap-5 px-2 my-3">
-        <div className=" col-span-2 border border-slate-500 rounded-lg px-3">
-          {dataPost &&
+        <div className=" col-span-2 rounded-lg px-3">
+          {dataPost && dataPost.length > 0 ? (
             dataPost.map((item) => (
               <div key={item.post_id}>
                 <div className=" flex items-center">
                   <div className=" max-w-[40px] max-h-[40px] mr-2">
                     <img
-                      src="/assets/images/img_user.png"
+                      src={
+                        item.user
+                          ? item.user.Avatar
+                          : "/assets/images/img_user.png"
+                      }
                       alt=""
                       className=" rounded-full"
                     />
@@ -164,12 +169,15 @@ const YourPost = () => {
                   <CommentList
                     inputRef={inputRef}
                     data={item.comments}
-                    postId={item.post_id}
+                    post={item}
                     fetchData={getPostByUser}
                   />
                 )}
               </div>
-            ))}
+            ))
+          ) : (
+            <EmptyState />
+          )}
         </div>
         <RightBar />
       </div>

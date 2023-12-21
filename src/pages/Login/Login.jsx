@@ -9,6 +9,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
 import useAuth from "../../hooks/redux/auth/useAuth.js";
 import { toast } from "react-toastify";
+import { getTokenInfo, setTokenInfo } from "../../utils/auth/auth.js";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const Login = () => {
   const { auth, setAuth } = useAuth();
@@ -23,6 +24,35 @@ const Login = () => {
     MyLogin();
   }, []);
 
+  let intervalId;
+
+  const checkTokenExpiration = async () => {
+    const tokenInfo = await getTokenInfo();
+    if (tokenInfo && tokenInfo.expiresIn) {
+      const expiresIn = Number(tokenInfo.expiresIn); // Thời gian hết hạn tính bằng giây
+      let expiresInSeconds = expiresIn;
+
+      intervalId = setInterval(() => {
+        console.log(expiresInSeconds);
+        expiresInSeconds--;
+
+        if (expiresInSeconds < 0) {
+          clearInterval(intervalId); // Dừng đếm ngược khi hết thời gian
+          setTokenInfo(null);
+          localStorage.removeItem("selectedTab");
+          window.location.href = "/";
+          // Thực hiện hành động khi hết thời gian, ví dụ: đăng xuất người dùng
+        }
+      }, 1000);
+    }
+    return () => {
+      // Dọn dẹp khi component unmount
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  };
+
   const onSubmit = async (data) => {
     try {
       const response = await axios
@@ -32,9 +62,11 @@ const Login = () => {
           setAuth({
             accessToken: response.data.token,
             userID: response.data.user,
+            expiresIn: response.data.expiresIn,
           });
           toast.success("Đăng nhập thành công");
           navigate("/", { replace: true });
+          checkTokenExpiration();
         });
     } catch (errors) {
       toast.error(errors.response.data.message, {
@@ -46,7 +78,7 @@ const Login = () => {
   };
   // console.log("auth", auth);
   return (
-    <div className="bg-login h-[100vh]">
+    <div>
       <button
         onClick={() => navigate("/")}
         className=" inline ml-5 my-5 text-white text-xl hover:text-navy-300"
@@ -158,7 +190,9 @@ const Login = () => {
                   }}
                 />
               </div>
-              <div href="#">Forgot your password?</div>
+              <div onClick={() => navigate("forgot-password")}>
+                Forgot your password?
+              </div>
               <button className="btn">Sign In</button>
             </form>
           </div>

@@ -1,12 +1,18 @@
 /* eslint-disable */
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-// import DashIcon from "components/icons/DashIcon";
-// chakra imports
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import useAuth from "../../../hooks/redux/auth/useAuth";
+import { getNhomQuyen } from "../../../utils/constants/formatStringName";
 
 export function SidebarLinks(props) {
   // Chakra color mode
   let location = useLocation();
+  const navigate = useNavigate();
+  const { auth } = useAuth();
+
+  const nhomQuyen = getNhomQuyen(auth);
+
+  // console.log("nhomQuyen", nhomQuyen);
 
   const { routes } = props;
 

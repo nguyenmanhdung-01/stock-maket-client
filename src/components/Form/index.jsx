@@ -1,32 +1,30 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { ButtonV2 } from "../Buttons/ButtonV2";
-import Button from "../Buttons/Button";
 import Select from "react-select";
 import ReactQuillEditor from "../ReactQuill";
 import { useState } from "react";
-const Form = ({ formFields, onSubmit }) => {
-  const [isEdit, setIsEdit] = useState(false);
 
+const Form = ({
+  formFields,
+  register,
+  setValue,
+  handleSubmit,
+  onSubmit,
+  onIsEditChange,
+}) => {
   const imageValue = formFields.filter((item) => item.name === "image");
-  // console.log("xuong day: ", imageValue[0].value);
+  console.log("Image value", imageValue);
   const [imageDeputy, setImageDeputy] = useState({
     firstImage:
       imageValue && imageValue[0] && imageValue[0].value
-        ? `/uploads/${imageValue[0].value}`
+        ? imageValue[0].value
         : null,
     secondImage: null,
   });
 
-  const { register, handleSubmit, setValue, watch, getValues } = useForm();
   const contentQuill = formFields.find((item) => item.type === "react-quill");
-  //console.log(contentQuill);
+
   useEffect(() => {
-    //console.log(contentQuill);
     const imageField = formFields.find((item) => item.name === "image");
-    const imageFieldDeputy = formFields.find(
-      (item) => item.name === "image_deputy"
-    );
 
     if (imageField) {
       setImageDeputy((prevState) => ({
@@ -34,14 +32,6 @@ const Form = ({ formFields, onSubmit }) => {
         firstImage: imageField.value,
       }));
       setValue("image", imageField.value[0]);
-    }
-
-    if (imageFieldDeputy) {
-      setImageDeputy((prevState) => ({
-        ...prevState,
-        secondImage: imageFieldDeputy.value,
-      }));
-      setValue("image_deputy", imageFieldDeputy.value);
     }
 
     formFields.forEach((field) => {
@@ -53,46 +43,41 @@ const Form = ({ formFields, onSubmit }) => {
     contentQuill ? contentQuill.value : ""
   );
 
-  //const values = watch();
-  const handleFormSubmit = (data) => {
-    // console.log("day", { ...data, isEdit });
-
-    //console.log("day", { ...data, isEdit });
-
-    // const formData = {
-    //   ...data,
-    //   file: imageURL || (imageURL && imageDeputy),
-    // };
-    onSubmit({ ...data, isEdit });
-  };
-
   const handleSelectChange = (selectedOption, fieldName) => {
     setValue(fieldName, selectedOption);
   };
 
-  const handleImageChange = (e, inputName) => {
+  const handleImageChange = async (e, inputName) => {
+    e.preventDefault();
+    if (onIsEditChange) {
+      onIsEditChange(true);
+    }
     const file = e.target.files[0];
-    // console.log(file);
-
-    //console.log("đây");
-    //console.log(file);
-
     if (file) {
-      setIsEdit(true);
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         setImageDeputy((prevState) => ({
           ...prevState,
           [inputName]: reader.result,
         }));
+
+        // try {
+        //   // setLoading(true);
+        //   const imageUrl = await uploadImageToFirebase(file);
+        //   setValue("image", imageUrl);
+        //   // setLoading(false);
+        //   // Ở đây bạn có thể sử dụng imageUrl để lưu vào state hoặc dùng theo nhu cầu của bạn
+        // } catch (error) {
+        //   // Xử lý lỗi tại đây nếu upload thất bại
+        //   console.error("Error uploading image to Firebase:", error);
+        // }
       };
       reader.readAsDataURL(file);
     }
+    return false;
   };
-  //console.log(imageURL);
 
   const renderField = (field) => {
-    //console.log(defaultValue);
     if (field.type === "react-quill") {
       return (
         <>
@@ -108,9 +93,6 @@ const Form = ({ formFields, onSubmit }) => {
               setContent(value);
               setValue(field.name, value);
             }}
-            // onContentChange={(value) => {
-            //   setValue("content", value);
-            // }}
           />
         </>
       );
@@ -146,82 +128,30 @@ const Form = ({ formFields, onSubmit }) => {
             </span>
 
             {imageDeputy.firstImage ? (
-              <div>
+              <div className={`w-[200px] relative `}>
                 <img
                   width={200}
                   src={imageDeputy.firstImage}
-                  //alt="Uploaded"
                   style={{ width: "200px" }}
-                  className="object-cover"
+                  className="object-cover "
+                  alt=""
                 />
               </div>
             ) : (
-              <div>
-                {/* <img
-                  width={200}
-                  src={field.value !== "null" ? `/uploads/${field.value}` : ""}
-                  //alt="Uploaded"
-                  style={{ width: "200px" }}
-                  className="object-cover"
-                /> */}
-              </div>
+              <div></div>
             )}
             <input
               accept=".jpg, .png, .jpeg, .svg"
               type={field.type}
               {...register(field.name)}
               onChange={(e) => handleImageChange(e, "firstImage")}
-              className="w-full rounded h-[36px] border border-gray-300 cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none"
-            />
-          </label>
-        </div>
-      );
-    }
-    if (field.type === "file" && field.name === "image_deputy") {
-      return (
-        <div className={field.col_span ? "col-span-2" : ""} key={field.name}>
-          <label>
-            <span className="block font-semibold text-sm">{field.label}</span>
-            {imageDeputy.secondImage ? (
-              imageDeputy.secondImage !== null && (
-                <div>
-                  <img
-                    width={200}
-                    src={imageDeputy.secondImage ? imageDeputy.secondImage : ""}
-                    //alt="Uploaded"
-                    style={{ width: "200px" }}
-                    className="object-cover"
-                  />
-                </div>
-              )
-            ) : (
-              <div>
-                <img
-                  width={200}
-                  src={
-                    field.label === "Hình ảnh người đại diện"
-                      ? "https://scontent.fhan17-1.fna.fbcdn.net/v/t39.30808-6/347567248_1488831868525963_752115650059248371_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5cd70e&_nc_ohc=oSSU2GSFFFsAX_zdckb&_nc_ht=scontent.fhan17-1.fna&oh=00_AfDoE18anvSitq-n8VVv__b3uKMndjGbXEBo-IqSb_6nJg&oe=6479B2B3"
-                      : ""
-                  }
-                  alt="Uploaded"
-                  style={{ width: "200px" }}
-                  className="object-cover"
-                />
-              </div>
-            )}
-            <input
-              accept=".jpg, .png, .jpeg, .svg"
-              type={field.type}
-              {...register(field.name)}
-              onChange={(e) => handleImageChange(e, "secondImage")}
-              className="w-full rounded h-[36px] border border-gray-300 cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             />
           </label>
         </div>
       );
     }
 
-    // Hiển thị các trường khác
     return (
       <label key={field.name}>
         <span className="block font-semibold text-sm ">
@@ -240,11 +170,9 @@ const Form = ({ formFields, onSubmit }) => {
       </label>
     );
   };
+
   return (
-    <form
-      onSubmit={handleSubmit(handleFormSubmit)}
-      className="grid grid-cols-2 gap-5 text-left"
-    >
+    <div className="grid grid-cols-2 gap-5 text-left">
       {formFields.map((field, index) => (
         <div
           className={`${field.col_span === true ? "col-span-2" : ""}`}
@@ -253,15 +181,7 @@ const Form = ({ formFields, onSubmit }) => {
           {renderField(field)}
         </div>
       ))}
-
-      <Button
-        type={"submit"}
-        colorBgr={
-          "col-span-2 bg-blue-500 hover:bg-blue-700 text-[18px] text-white font-semibold justify-center"
-        }
-        title={"Lưu"}
-      />
-    </form>
+    </div>
   );
 };
 

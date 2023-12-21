@@ -11,6 +11,7 @@ import { useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import useAuth from "../../../../hooks/redux/auth/useAuth";
+import { uploadImageToFirebase } from "../../../../utils/constants/uploadImage";
 const DOMAIN = process.env.REACT_APP_STOCK;
 
 function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
@@ -46,7 +47,7 @@ export default function ImageCrop({
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
   const [aspect, setAspect] = useState(16 / 9);
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
   function onSelectFile(e) {
     if (e.target.files && e.target.files.length > 0) {
       setCrop(undefined); // Makes crop preview update between images.
@@ -114,21 +115,24 @@ export default function ImageCrop({
     const dataUrl = canvas.toDataURL("image/png");
     setAvatarPreviewUrl(dataUrl);
     const file = dataURLtoFile(dataUrl, `${Date.now()}-avatar.png`);
-    const formData = new FormData();
-    formData.append("image", file);
+    console.log("file", file);
 
     try {
-      // Send a POST request to upload the image
+      const imageUrl = await uploadImageToFirebase(file);
+      console.log("imageUrl", imageUrl);
+      const data = {
+        imageUrl,
+      };
       const response = await axios.post(
-        `${DOMAIN}/users/uploadFileImage/${auth.userID.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        `${DOMAIN}/users/changeAvatar/${auth.userID.id}`,
+        data
       );
+      console.log("response", response);
       toast.success("Thay đổi ảnh đại diện thành công");
+      setAuth({
+        ...auth,
+        userID: response.data,
+      });
       refreshData();
       // const values = { ...currentUser, image: response.data.image };
       // localStorage.setItem("user", JSON.stringify(values));

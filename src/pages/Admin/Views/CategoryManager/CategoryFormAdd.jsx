@@ -53,7 +53,7 @@ const CategoryFormAdd = ({ value, setOpen, fetchData }) => {
         <div className="w-full relative">
           <input
             type="text"
-            className={` bg-white rounded focus:outline-none w-full px-3 h-[32px] text-[13px] leading-[15px] border-[#cccccc] ${
+            className={` rounded focus:outline-none w-full px-3 h-[32px] text-[13px] leading-[15px] border border-black ${
               errors.name ? "border-red-500 border-[1px]" : ""
             }`}
             {...register("name", {

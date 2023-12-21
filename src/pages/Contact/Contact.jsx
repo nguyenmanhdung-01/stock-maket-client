@@ -20,14 +20,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Card from "../../components/Card";
+import { useNavigate } from "react-router-dom";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const Contact = () => {
   const { auth } = useAuth();
-  console.log("auth", auth);
+  // console.log("auth", auth);
   const [captcha, setCaptcha] = useState(generateCaptcha);
   // const { currentUser } = useContext();
-  let currentUser;
-  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -237,13 +237,13 @@ const Contact = () => {
                       <BiLogIn />
                     </button> */}
 
-                  {currentUser ? (
+                  {auth.userID ? (
                     ""
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setOpen(true)}
-                      className="px-[12px] py-[6px] text-[18px] bg-slate-200 border-[1px] border-[#cccccc] "
+                      onClick={() => navigate("/login-page")}
+                      className="px-[12px] py-[5px] text-[18px] bg-slate-200 border-[1px] border-[#cccccc] "
                     >
                       <FontAwesomeIcon icon={faRightToBracket} />
                     </button>

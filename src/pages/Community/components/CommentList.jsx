@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-import { faThumbsUp } from "@fortawesome/free-regular-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IoSend } from "react-icons/io5";
-import useAuth from "../../../hooks/redux/auth/useAuth";
+import { io } from "socket.io-client";
 import axios from "axios";
 import { useForm } from "react-hook-form";
+
+import { IoSend } from "react-icons/io5";
+import useAuth from "../../../hooks/redux/auth/useAuth";
 import CommentItem from "./CommentItem";
 import LoadingPage from "../../../components/LoadingPage";
+import socket from "../../../socketService";
+
 const DOMAIN = process.env.REACT_APP_STOCK;
-const CommentList = ({ inputRef, data, postId, fetchData }) => {
+
+const CommentList = ({ inputRef, data, post, fetchData }) => {
+  // console.log("post", post);
   const { t } = useTranslation();
   const { auth } = useAuth();
   const { register, handleSubmit, reset } = useForm({ criteriaMode: "all" });
@@ -21,17 +24,27 @@ const CommentList = ({ inputRef, data, postId, fetchData }) => {
     try {
       const values = {
         content: data.content,
-        post: postId,
+        post: post.post_id,
         user: auth.userID.id,
       };
       // console.log("onSubmit", values);
 
-      await axios.post(
+      const response = await axios.post(
         `${DOMAIN}/comment/createComment`,
 
         values,
         { withCredentials: true }
       );
+      console.log("response", response);
+
+      socket.emit("replyPost", {
+        user: auth.userID,
+        post: post,
+        message: "Đã bình luận về bài viết của bạn",
+        recipientId: post.user?.id,
+        time: new Date(),
+        link: `/chi-tiet-bai-viet/${post?.post_id}`,
+      });
       fetchCommentList();
 
       reset({ content: "" });
@@ -48,9 +61,9 @@ const CommentList = ({ inputRef, data, postId, fetchData }) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${DOMAIN}/comment/getCommentByPost/${postId}`
+        `${DOMAIN}/comment/getCommentByPost/${post.post_id}`
       );
-      console.log("response", response);
+      // console.log("response", response);
       const groupedComments = groupCommentsByFatherId(response.data);
       setCommentList(groupedComments);
       fetchData();

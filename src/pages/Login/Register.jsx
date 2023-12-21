@@ -3,6 +3,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const Register = () => {
   const {
@@ -16,9 +17,12 @@ const Register = () => {
     try {
       const response = await axios.post(`${DOMAIN}/auth/register`, data);
       console.log("Successfully registered", response.data);
-      alert("Thành công");
+      toast.success(
+        "Đăng ký thành công! Hãy đăng nhập để sử dụng chức năng của website"
+      );
     } catch (error) {
-      console.log("Error", error);
+      toast.error(error.response.data.message);
+      reset({ TenDangNhap: "" });
     }
   };
   return (
@@ -303,7 +307,9 @@ const Register = () => {
         </div>
       </div>
 
-      <button className="btn">Sign Up</button>
+      <button className="btn" id="btnSignUp">
+        Sign Up
+      </button>
     </form>
   );
 };

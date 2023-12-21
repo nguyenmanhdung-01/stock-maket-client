@@ -2,39 +2,74 @@ import axios from "axios";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import HighChartsStock from "../../../components/HighCharts";
-import DigitalCurrent from "./DigitalCurrent";
+import { useForm } from "react-hook-form";
+import HighchartsReact from "highcharts-react-official";
+import HighCharts from "highcharts/highstock";
+const KEY = process.env.REACT_APP_KET;
 const Forex = () => {
   const { t } = useTranslation();
-  const [fromCurrent, setFromCurrent] = useState("EUR");
-  const [toCurrent, setToCurrent] = useState("USD");
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm();
+  const [fromCurrent, setFromCurrent] = useState("");
+  const [toCurrent, setToCurrent] = useState("");
   const [forexRealTime, setForexRealTime] = useState({});
   const [forex, setForex] = useState([]);
-  const [digitalCurrent, setDigitalCurrent] = useState([]);
+  const [innitial, setInitial] = useState(false);
+  useEffect(() => {
+    setFromCurrent("EUR");
+    setToCurrent("USD");
+    setInitial(true);
+  }, []);
+
+  const onChangeFrom = (value) => {
+    setFromCurrent(value);
+    console.log("change", fromCurrent);
+  };
+
+  const onChangeTo = (event) => {
+    setToCurrent(event.target.value);
+  };
+
+  const handleConvert = (event) => {
+    event.preventDefault();
+    setInitial(false);
+    fetchData();
+  };
 
   const fetchData = async () => {
     try {
-      const [dataRealTime, dataForex, dataDigital] = await Promise.all([
+      const [dataRealTime, dataForex] = await Promise.all([
         axios.get(
-          `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=JPY&apikey=demo`
+          `https://alpha-vantage.p.rapidapi.com/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${fromCurrent}&to_currency=${toCurrent}&apikey=${KEY}`,
+          {
+            headers: {
+              "X-RapidAPI-Key":
+                "3048a1d1dfmshdde3ab6f776dd11p1b67e3jsnfd550c9178c7",
+              "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com",
+            },
+          }
         ),
         axios.get(
           // `https://www.alphavantage.co/query?function=FX_WEEKLY&from_symbol=EUR&to_symbol=${fromCurrent}&apikey=demo`
-          `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=${fromCurrent}&to_symbol=${toCurrent}&outputsize=full&apikey=demo`
-        ),
-        axios.get(
-          `https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=BTC&market=CNY&apikey=demo`
+          `https://alpha-vantage.p.rapidapi.com/query?function=FX_DAILY&from_symbol=${fromCurrent}&to_symbol=${toCurrent}&outputsize=compact&apikey=${KEY}`,
+          {
+            headers: {
+              "X-RapidAPI-Key":
+                "3048a1d1dfmshdde3ab6f776dd11p1b67e3jsnfd550c9178c7",
+              "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com",
+            },
+          }
         ),
       ]);
       setForexRealTime(dataRealTime.data["Realtime Currency Exchange Rate"]);
-      // console.log(
-      //   "dataRealTime",
-      //   dataRealTime.data["Realtime Currency Exchange Rate"]
-      // );
+
       setForex(dataForex.data["Time Series FX (Daily)"]);
-      setDigitalCurrent(
-        dataDigital.data["Time Series (Digital Currency Daily)"]
-      );
+
       // console.log("dataForex", dataForex.data["Time Series FX (Weekly)"]);
     } catch (error) {
       console.log(error.message);
@@ -42,8 +77,10 @@ const Forex = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [fromCurrent, toCurrent]);
+    if (innitial && fromCurrent && toCurrent) {
+      fetchData();
+    }
+  }, [innitial]);
 
   const dataArrayWithKeys = Object.entries(forex);
 
@@ -57,37 +94,73 @@ const Forex = () => {
       parseFloat(values["4. close"]),
     ];
   });
-
   resultArray.sort((a, b) => a[0] - b[0]);
+
+  const buyPoints = []; // Mảng chứa các timestamp hoặc chỉ số của điểm mua
+  const sellPoints = []; // Mảng chứa các timestamp hoặc chỉ số của điểm bán
+
+  // Ví dụ: Tìm điểm mua và bán dựa trên giá mở cửa và giá đóng cửa
+  resultArray.forEach((data, index) => {
+    // Kiểm tra điều kiện để xác định điểm mua và bán
+    // console.log("data: " + data);
+    if (data[1] < data[4]) {
+      buyPoints.push(data[0]); // Thêm timestamp của điểm mua vào mảng buyPoints
+    } else {
+      sellPoints.push(data[0]); // Thêm timestamp của điểm bán vào mảng sellPoints
+    }
+  });
+
   const options = {
     title: {
       text: `Biểu đồ phân tích chứng khoán từ ${forexRealTime["1. From_Currency Code"]} đến ${forexRealTime["3. To_Currency Code"]}`,
     },
-
+    navigator: {
+      enabled: false,
+    },
+    stockTools: {
+      guiEnabled: false,
+      gui: {
+        enabled: false,
+      },
+    },
     rangeSelector: {
-      selected: 2, // Mặc định chọn thời gian theo ngày
+      selected: 2,
+      inputDateFormat: "%b %e, %Y %H:%M",
       buttons: [
+        {
+          type: "week",
+          count: 1,
+          text: "1W",
+        },
         {
           type: "month",
           count: 1,
-          text: "Tháng",
+          text: "1M",
+        },
+        {
+          type: "all",
+          count: 2,
+          text: "All",
         },
       ],
+      inputEnabled: true,
     },
 
     series: [
       {
-        type: "ohlc",
-        name: "Giá ngoại hối theo ngày",
-        data: resultArray,
-        dataGrouping: {
-          units: [
-            [
-              "Tuần", // unit name
-              [1], // allowed multiples
-            ],
-            ["Tháng", [1, 2, 3, 4, 6]],
-          ],
+        name: "Forex",
+        type: "line", // Hoặc 'area' nếu muốn biểu đồ dạng diện tích
+        data: resultArray, // Dữ liệu chứng khoán
+        marker: {
+          enabled: true, // Kích hoạt marker
+          symbol: "circle", // Symbol của marker
+          radius: 4, // Kích thước của marker
+          states: {
+            hover: {
+              enabled: true, // Kích hoạt hiệu ứng hover
+              radius: 6, // Kích thước của marker khi hover
+            },
+          },
         },
       },
     ],
@@ -100,11 +173,45 @@ const Forex = () => {
         </h1>
       </div>
       <div className=" text-white mt-4">
-        <div className="grid grid-cols-3 gap-3">
+        <form action="" className=" mb-4 bg-navy-700 px-3 py-2 rounded-md">
+          <div className=" grid grid-cols-5 gap-3 xl:grid-cols-5 lg:grid-cols-5 md:grid-cols-1 sm:grid-cols-1">
+            <div className="w-full col-span-2 flex items-center">
+              <span className="mr-2 text-base">Từ</span>
+              <input
+                type="text"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                placeholder="Mã tiền tệ VD:USD"
+                onChange={(e) => onChangeFrom(e.target.value)}
+                required
+              />
+            </div>
+            <div className="w-full col-span-2 flex items-center">
+              <span className="mr-2 text-base">Đến</span>
+              <input
+                onChange={onChangeTo}
+                type="text"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                placeholder="Mã tiền tệ VD:EUR"
+                required
+              />
+            </div>
+            <div className="flex items-center justify-center">
+              <button
+                onClick={handleConvert}
+                className=" px-3 py-2 bg-blue-500 rounded-lg"
+              >
+                Chuyển đổi
+              </button>
+            </div>
+          </div>
+        </form>
+        <div className="grid grid-cols-3 xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-1 sm:grid-cols-1">
           <div className=" bg-navy-800 p-4 rounded-lg">
             <div className=" flex items-center justify-between mb-3">
               <span>{t("Mã tiền tệ chuyển từ")}</span>
-              <span>{forexRealTime["1. From_Currency Code"]}</span>
+              <span className="font-bold">
+                {forexRealTime["1. From_Currency Code"]}
+              </span>
             </div>
             <div className=" flex items-center justify-between my-3">
               <span>{t("Tên mã")}</span>
@@ -112,13 +219,15 @@ const Forex = () => {
             </div>
             <div className=" flex items-center justify-between my-3">
               <span>{t("Đến mã tiền tệ")}</span>
-              <span>{forexRealTime["3. To_Currency Code"]}</span>
+              <span className="font-bold">
+                {forexRealTime["3. To_Currency Code"]}
+              </span>
             </div>
             <div className=" flex items-center justify-between my-3">
               <span>{t("Tên mã")}</span>
               <span>{forexRealTime["4. To_Currency Name"]}</span>
             </div>
-            <div className=" flex items-center justify-between my-3">
+            <div className=" flex items-center justify-between my-3 bg-yellow-500 px-1 text-white animate-[pulse_1.3s_linear_infinite]">
               <span>{t("Tỷ giá")}</span>
               <span>{forexRealTime["5. Exchange Rate"]}</span>
             </div>
@@ -140,7 +249,11 @@ const Forex = () => {
             </div>
           </div>
           <div className="col-span-2">
-            <HighChartsStock options={options} />
+            <HighchartsReact
+              highcharts={HighCharts}
+              constructorType={"stockChart"}
+              options={options}
+            />
           </div>
           {/* <div className=" col-span-2">
             <DigitalCurrent
