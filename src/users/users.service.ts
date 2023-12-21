@@ -3,8 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { News, Users } from 'src/utils/typeorm';
 import { IUserService } from './users';
-import { ChangPassWord, CreateUserDetails, editUser } from 'src/utils/types';
+import {
+  ChangPassWord,
+  CreateUserDetails,
+  Useremail,
+  editUser,
+} from 'src/utils/types';
 import { hashPassword } from 'src/utils/helpers';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService implements IUserService {
@@ -13,15 +19,16 @@ export class UsersService implements IUserService {
     private readonly userRepository: Repository<Users>, // @Inject(Services.ROLE) private readonly roleService: IRoleService,
     @InjectRepository(News)
     private readonly newsRepository: Repository<News>,
+    private readonly mailService: MailService,
   ) {}
 
   async createUser(userDetails: CreateUserDetails) {
-    const existing = await this.userRepository.find({
-      TenDangNhap: userDetails.TenDangNhap,
-    });
+    // const existing = await this.userRepository.find({
+    //   TenDangNhap: userDetails.TenDangNhap,
+    // });
 
     // if (existing) {
-    //   throw new HttpException('Người dùng đã tồn tại', HttpStatus.CONFLICT);
+    //   throw new HttpException('Tên đăng nhập đã tồn tại', HttpStatus.CONFLICT);
     // }
 
     const password = await hashPassword(userDetails.MatKhau);
@@ -31,9 +38,45 @@ export class UsersService implements IUserService {
     return savedUser;
   }
 
+  async createAdminUser(username: string, password: string) {
+    const pass = await hashPassword(password);
+    const adminUser = this.userRepository.create({
+      TenDangNhap: username,
+      MatKhau: pass,
+    });
+    // const adminRole = await this.roleRepository.findOne({ name: username });
+    // adminUser.roles = [adminRole];
+    // console.log('admin role: ' + adminRole);
+
+    return this.userRepository.save(adminUser);
+  }
+
+  async getUserPaginationAndStatus(
+    status?: boolean | null,
+    page: number = 1,
+    pageSize: number = 4,
+  ) {
+    const skip = (page - 1) * pageSize;
+
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('User')
+      .orderBy('User.NgayTao', 'DESC')
+      .skip(skip)
+      .take(pageSize);
+
+    if (status !== null && status !== undefined) {
+      queryBuilder.andWhere('User.status = :status', { status });
+    }
+
+    const [data, count] = await queryBuilder.getManyAndCount();
+
+    return { data, count };
+  }
+
   async findByUsername(TenDangNhap: string) {
     const user = await this.userRepository.findOne({
       where: { TenDangNhap },
+      relations: ['RoleGroupID'],
     });
 
     if (!user) {
@@ -49,6 +92,7 @@ export class UsersService implements IUserService {
   async findById(UserID: number) {
     const user = await this.userRepository.findOne({
       where: { id: UserID },
+      relations: ['RoleGroupID'],
     });
     if (user) {
       return user;
@@ -69,11 +113,52 @@ export class UsersService implements IUserService {
     return user;
   }
 
+  async updatePermission(id: number, permission: any): Promise<any> {
+    const user = await this.userRepository.findOne(id);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Cập nhật RoleGroupID
+    user.RoleGroupID = permission.RoleGroupID;
+
+    // Lưu thông tin cập nhật
+    await this.userRepository.save(user);
+
+    // Tìm lại user sau khi lưu để có thông tin chi tiết
+    return await this.userRepository.findOne(id, {
+      relations: ['RoleGroupID'],
+    });
+  }
+
   async editPassword(user: Users, password: ChangPassWord): Promise<any> {
     const { passwordNew } = password;
     const passwordHash = await hashPassword(passwordNew);
     await this.userRepository.update(user.id, { MatKhau: passwordHash });
     return user;
+  }
+
+  async forgetPassword(email: Useremail) {
+    // console.log('email', email);
+
+    const findUserByEmail = await this.userRepository.findOne({
+      where: { Email: email.email },
+    });
+
+    // console.log('findUserByEmail', findUserByEmail);
+
+    if (!findUserByEmail) {
+      throw new HttpException('Không thấy người dùng', HttpStatus.NOT_FOUND);
+    }
+
+    const pass = await this.mailService.sendEmailForgetPassword(email);
+    const password = await hashPassword(pass);
+    findUserByEmail.MatKhau = password;
+    await this.userRepository.save(findUserByEmail);
+    return findUserByEmail;
+
+    // return findUserByEmail;
   }
 
   async delete(idDelete: number[]): Promise<Users[]> {
@@ -119,9 +204,16 @@ export class UsersService implements IUserService {
   }
 
   async updateAvatarUser(userId: string, avatarUrl: string) {
-    const user = await this.userRepository.findOne({
-      id: Number(userId),
-    });
+    // console.log('avatarUrl: ' + avatarUrl);
+
+    const user = await this.userRepository.findOne(
+      {
+        id: Number(userId),
+      },
+      {
+        relations: ['RoleGroupID'],
+      },
+    );
     if (!user) {
       throw new Error('User not found');
     }
@@ -133,5 +225,36 @@ export class UsersService implements IUserService {
     const updateAvatar = await this.userRepository.save(user);
 
     return updateAvatar;
+  }
+
+  async approveUsersClose(userIds: number[]) {
+    await this.userRepository
+      .createQueryBuilder()
+      .update(Users)
+      .set({ status: 1 })
+      .whereInIds(userIds)
+      .execute();
+
+    // Trả về danh sách các liên hệ đã được cập nhật
+    const approvedContacts = await this.userRepository.findByIds(userIds);
+    return approvedContacts;
+  }
+
+  async approveUsersOpen(userIds: number[]) {
+    await this.userRepository
+      .createQueryBuilder()
+      .update(Users)
+      .set({ status: 0 })
+      .whereInIds(userIds)
+      .execute();
+
+    // Trả về danh sách các liên hệ đã được cập nhật
+    const approvedUsers = await this.userRepository.findByIds(userIds);
+    return approvedUsers;
+  }
+
+  async checkUserStatus(username: string) {
+    const user = await this.userRepository.findOne({ TenDangNhap: username });
+    return user ? user.status : 2;
   }
 }

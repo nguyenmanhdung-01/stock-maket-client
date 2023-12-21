@@ -99,7 +99,7 @@ export class NhomQuyenService implements INhomQuyen {
         .createQueryBuilder()
         .update(Users)
         .set({ RoleGroupID: null })
-        .where('UserID IN (:...userIDs)', { userIDs: listIdUser })
+        .where('id IN (:...userIDs)', { userIDs: listIdUser })
         .execute();
     }
     return saved;

@@ -9,7 +9,7 @@ export interface INewsService {
   getNewBySlug(slug: string);
   getNewsByCategoryAndStatusWithPagination(
     category: number,
-    status: boolean,
+    keyword: string,
     page: number,
     pageSize: number,
     id: number,

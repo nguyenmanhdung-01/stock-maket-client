@@ -54,6 +54,7 @@ export class PostService {
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
       .leftJoinAndSelect('post.comments', 'comment') // 'comments' là tên field trong Posts entity
+      .orderBy('post.created_at', 'DESC')
       .getMany();
 
     return posts;

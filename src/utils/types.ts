@@ -27,6 +27,7 @@ export type editUser = {
   GioiTinh: number;
   SĐT: string;
   Email: string;
+  RoleGroupID?: number;
 };
 
 export type ChangPassWord = {
@@ -35,7 +36,7 @@ export type ChangPassWord = {
 };
 
 export type PayloadgenerateToken = {
-  username: string;
+  TenDangNhap: string;
 };
 
 export type TokenPayload = {
@@ -56,4 +57,8 @@ export type NewsCategoryDetails = {
   name: string;
   slug: string;
   isEdit?: boolean;
+};
+
+export type Useremail = {
+  email: string;
 };

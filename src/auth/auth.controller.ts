@@ -40,12 +40,28 @@ export class AuthController {
     if (request.user?.IsRemoved === true) {
       throw new HttpException('Người dùng đã bị xóa', HttpStatus.NOT_FOUND);
     }
-    const payload = { username: user.TenDangNhap };
 
-    // console.log('payload', payload);
+    if (request.user?.status === 1) {
+      throw new HttpException(
+        'Tài khoản của bạn đã bị khóa',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const userWithRoleGroupID = await this.userService.findByUsername(
+      request.user.TenDangNhap,
+    );
 
-    const token = await this.authService.generateToken(payload);
-    return { user: request.user, token };
+    // console.log('userWithRoleGroupID', userWithRoleGroupID);
+
+    const payload = {
+      TenDangNhap: user.TenDangNhap,
+    };
+
+    const { token, expiresIn } = await this.authService.generateToken(payload);
+    // console.log('token', token);
+    // console.log('expiresIn', expiresIn);
+
+    return { user: userWithRoleGroupID, token, expiresIn };
   }
 
   // @Roles(RoleEnum.Admin)

@@ -55,29 +55,6 @@ export class NewsService {
     return await this.newsPostRepository.find();
   }
 
-  async approveNews(postIds: number[]) {
-    const approvedPosts: News[] = [];
-
-    for (const postId of postIds) {
-      const post = await this.newsPostRepository.findOne(postId);
-
-      if (!post) {
-        throw new Error(`Post with ID ${postId} not found`);
-      }
-
-      // const isAdmin = post.user.roles.some((role) => role.name === 'admin');
-      // if (!isAdmin) {
-      //   throw new Error('You are not authorized to approve posts');
-      // }
-
-      post.status = true;
-      const approvedPost = await this.newsPostRepository.save(post);
-      approvedPosts.push(approvedPost);
-    }
-
-    return approvedPosts;
-  }
-
   async getNewById(id: number) {
     const post = await this.newsPostRepository.findOne(id);
     if (!post) {
@@ -167,13 +144,13 @@ export class NewsService {
     return await this.newsPostRepository
       .createQueryBuilder()
       .delete()
-      .where('id IN (:...ids)', { ids })
+      .where('news_id IN (:...ids)', { ids })
       .execute();
   }
 
   async getNewsByCategoryAndStatusWithPagination(
     category?: number | null,
-    status?: boolean | null,
+    keyword?: string | null,
     page: number = 1,
     pageSize: number = 4,
     // id?: number | null,
@@ -186,7 +163,7 @@ export class NewsService {
       .createQueryBuilder('NewsPost')
       .leftJoinAndSelect('NewsPost.news_category', 'NewsCategory')
       .leftJoinAndSelect('NewsPost.user', 'User')
-      // .leftJoinAndSelect('User.roles', 'Role')
+      .leftJoinAndSelect('User.RoleGroupID', 'RoleGroupID')
       .where('NewsPost.status = :status', { status: false })
       .orderBy('NewsPost.created_at', 'DESC')
       .skip(skip)
@@ -198,29 +175,19 @@ export class NewsService {
       });
     }
 
-    if (status !== null && status !== undefined) {
-      queryBuilder.andWhere('NewsPost.status = :status', { status });
+    if (keyword !== null && keyword !== undefined) {
+      queryBuilder.andWhere(
+        '(newsPost.title LIKE :keyword OR newsPost.subcontent LIKE :keyword)',
+        { keyword: `%${keyword}%` },
+      );
     }
-
-    // if (
-    //   user.roles.find(
-    //     (role) => role.name === 'admin' || role.name === 'contentManager',
-    //   )
-    // ) {
-    // } else {
-    //   queryBuilder.andWhere('User.id = :id', { id: id });
-    // }
 
     const [data, count] = await queryBuilder.getManyAndCount();
 
     return { data, count };
   }
 
-  async getAllNews(
-    status: string = '0',
-    page: number = 1,
-    pageSize: number = 4,
-  ) {
+  async getAllNews(page: number = 1, pageSize: number = 4) {
     const skip = (page - 1) * pageSize;
 
     const queryBuilder = this.newsPostRepository

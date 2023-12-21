@@ -8,18 +8,14 @@ import {
   Put,
   Post,
   UseGuards,
-  UploadedFile,
-  UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { Routes, Services } from 'src/utils/contants';
 import { IUserService } from './users';
 import { Users } from 'src/utils/typeorm';
 import JwtAuthenticationGuard from 'src/auth/utils/jwt/jwt-authentication.guard';
 import { AuthUser } from 'src/utils/decorators';
-import { ChangPassWord, editUser } from 'src/utils/types';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { ChangPassWord, Useremail, editUser } from 'src/utils/types';
 @Controller(Routes.USERS)
 export class UsersController {
   constructor(
@@ -36,12 +32,37 @@ export class UsersController {
     return this.userService.findById(id);
   }
 
+  @Get()
+  async getUserByStatusWithPagination(
+    @Query('status') status: boolean | null,
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 4,
+  ) {
+    const data = await this.userService.getUserPaginationAndStatus(
+      status,
+      page,
+      pageSize,
+    );
+
+    return data;
+  }
+
   @Put('edit/:id')
   async editUsers(
     @Param('id') id: number,
     @Body() editUsers: editUser,
   ): Promise<Users> {
+    console.log('editUsers', editUsers);
+
     return this.userService.editUser(id, editUsers);
+  }
+
+  @Put('edit-quyen/:id')
+  async updateQuyen(
+    @Param('id') id: number,
+    @Body() permission: any,
+  ): Promise<Users> {
+    return this.userService.updatePermission(id, permission);
   }
 
   @UseGuards(JwtAuthenticationGuard)
@@ -76,33 +97,30 @@ export class UsersController {
     await this.userService.removedNews(userId, newNewsId);
   }
 
-  @Post('uploadFileImage/:userId')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: '../client/public/uploads',
-        filename: (req, file, callback) => {
-          const randomName = Array(8)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 8).toString(16))
-            .join('');
-          return callback(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Param('userId') userId: string,
-  ) {
+  @Post('changeAvatar/:userId')
+  async uploadFile(@Body() imageUrl: any, @Param('userId') userId: string) {
     //console.log(userId);
-    //console.log(file.filename);
+    // console.log('file', imageUrl);
 
-    const imageUrl = file.filename;
     const updatedUser = await this.userService.updateAvatarUser(
       userId,
-      imageUrl,
+      imageUrl.imageUrl,
     );
     return updatedUser;
+  }
+
+  @Put('approve-close')
+  async approveClose(@Body() ids: number[]) {
+    return await this.userService.approveUsersClose(ids);
+  }
+
+  @Put('approve-open')
+  async approveOpen(@Body() ids: number[]) {
+    return await this.userService.approveUsersOpen(ids);
+  }
+
+  @Post('getOneUser')
+  async forgetPassword(@Body() email: Useremail): Promise<Users> {
+    return this.userService.forgetPassword(email);
   }
 }

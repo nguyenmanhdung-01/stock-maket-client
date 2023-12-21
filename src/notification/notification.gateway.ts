@@ -1,4 +1,3 @@
-// notification.gateway.ts
 import {
   WebSocketGateway,
   SubscribeMessage,
@@ -7,47 +6,86 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { AuthService } from 'src/auth/auth.service';
+import { Inject } from '@nestjs/common';
 
-@WebSocketGateway(3002, { cors: true })
+import { Server, Socket } from 'socket.io';
+import { Services } from 'src/utils/contants';
+import { INotificationService } from './notification';
+
+@WebSocketGateway({ cors: true })
 export class NotificationGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() server: Server;
-  constructor(private readonly authService: AuthService) {}
 
-  afterInit(socket: Socket) {
+  constructor(
+    @Inject(Services.NOTIFICATION)
+    private readonly notificationService: INotificationService,
+  ) {}
+  afterInit() {
     console.log('WebSocket initialized');
   }
 
-  // Xử lý các sự kiện từ client và broadcast tới tất cả các client khác
   @SubscribeMessage('likePost')
-  handleLike(client: any, payload: any) {
-    this.server.emit('likePost', payload); // Gửi thông điệp tới tất cả các client khác
-  }
+  async handleLike(client: Socket, payload: any) {
+    // console.log('Received likePost from client:', payload);
 
-  async handleConnection(socket: Socket) {
-    console.log('connection', socket);
-
-    const authHeader = socket.handshake.headers.authorization;
-    console.log('Auth header: ' + authHeader);
-
-    if (authHeader && (authHeader as string).split('')[1]) {
-      try {
-        const id = await this.authService.validateToken(
-          (authHeader as string).split('')[1],
-        );
-        socket.data = id;
-      } catch (error) {}
-    } else {
-      socket.disconnect();
+    // Xử lý payload và gửi lại thông báo đến tất cả client khác
+    try {
+      const newNotification =
+        await this.notificationService.createNotification(payload);
+      this.server.emit('likePost', newNotification);
+    } catch (error) {
+      console.log(error.message);
     }
   }
 
-  handleDisconnect(socket: Socket) {
-    console.log(socket.id, socket.data?.id);
+  @SubscribeMessage('replyPost')
+  async handleReplyPost(client: Socket, payload: any) {
+    // console.log('replyPost', payload);
+
+    try {
+      const newNotification =
+        await this.notificationService.createNotification(payload);
+      this.server.emit('replyPost', newNotification);
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
-  // Tương tự, xử lý các sự kiện bình luận, trả lời bình luận
+  @SubscribeMessage('commentPost')
+  async handleCommentPost(client: Socket, payload: any) {
+    // console.log('replyPost', payload);
+
+    try {
+      const newNotification =
+        await this.notificationService.createNotification(payload);
+      this.server.emit('commentPost', newNotification);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  @SubscribeMessage('createPost')
+  async handleCreatePost(client: Socket, payload: any) {
+    // console.log('createPost', payload);
+
+    const { recipients, ...otherData } = payload;
+    // console.log('createPost', recipients);
+
+    for (const recipientId of recipients) {
+      const data = { recipientId, ...otherData };
+      const newNotification =
+        await this.notificationService.createNotification(data);
+      this.server.emit('createPost', newNotification);
+    }
+  }
+
+  handleConnection(client: Socket) {
+    console.log('Client connected:', client.id);
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log('Client disconnected:', client.id);
+  }
 }

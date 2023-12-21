@@ -142,7 +142,7 @@ export class NewscategoryService implements INewsCategoryService {
     const deleteManyPostByCategoryId = await this.newsPostRepository
       .createQueryBuilder()
       .delete()
-      .where('newsCategory IN (:...idNewsCategories)', {
+      .where('news_category IN (:...idNewsCategories)', {
         idNewsCategories,
       })
       .execute();

@@ -21,19 +21,19 @@ export class Users {
   @Column()
   TenDangNhap: string;
 
-  @Column()
+  @Column({ nullable: true })
   HoVaTen: string;
 
-  @Column()
+  @Column({ nullable: true })
   Email: string;
 
   @Column()
   MatKhau: string;
 
-  @Column()
+  @Column({ nullable: true })
   GioiTinh: number;
 
-  @Column()
+  @Column({ nullable: true })
   NgaySinh: Date;
 
   @Column({ nullable: true })

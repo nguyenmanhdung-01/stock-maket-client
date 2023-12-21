@@ -11,12 +11,19 @@ import {
   NotFoundException,
   HttpException,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { Routes, Services } from 'src/utils/contants';
 import { UpdateNewsDto } from './dtos/UpdateNewsDto.dto';
 import { News } from 'src/utils/typeorm';
 import { INewsService } from './news';
 import { CreateNewsDto } from './dtos/CreateNewsDto.dtos';
+import { diskStorage } from 'multer';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import * as path from 'path';
+import * as sharp from 'sharp';
 
 @Controller(Routes.NEWS)
 export class NewsController {
@@ -59,7 +66,7 @@ export class NewsController {
   @Get()
   async getNewsByCategoryAndStatusWithPagination(
     @Query('category') category: number | null,
-    @Query('status') status: boolean | null,
+    @Query('keyword') keyword: string | null,
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 4,
     @Query('id') id?: number,
@@ -67,7 +74,7 @@ export class NewsController {
     const data =
       await this.newsPostsService.getNewsByCategoryAndStatusWithPagination(
         category,
-        status,
+        keyword,
         page,
         pageSize,
         id,
@@ -173,5 +180,36 @@ export class NewsController {
   @Get('by-category')
   async getNewsByCategory() {
     return this.newsPostsService.getNewsByCategory();
+  }
+
+  @Post('uploadFileImage')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: '../client/public/uploads',
+        filename: (req, file, callback) => {
+          const randomName = Array(4)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 4).toString(16))
+            .join('');
+          return callback(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log('file', file);
+
+    const filename =
+      Array(8)
+        .fill(null)
+        .map(() => Math.round(Math.random() * 8).toString(16))
+        .join('') + extname(file.originalname);
+
+    await sharp(file.path)
+      .resize(800)
+      .toFile(path.join('../client/public/uploads', filename));
+
+    return { imageUrl: filename };
   }
 }

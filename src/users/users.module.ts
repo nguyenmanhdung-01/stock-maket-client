@@ -4,9 +4,10 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { Services } from 'src/utils/contants';
 import { News, Users } from 'src/utils/typeorm';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Users, News])],
+  imports: [TypeOrmModule.forFeature([Users, News]), MailModule],
   providers: [
     {
       provide: Services.USERS,
