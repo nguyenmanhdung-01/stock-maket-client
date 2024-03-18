@@ -20,6 +20,7 @@ const Register = () => {
       toast.success(
         "Đăng ký thành công! Hãy đăng nhập để sử dụng chức năng của website"
       );
+      reset();
     } catch (error) {
       toast.error(error.response.data.message);
       reset({ TenDangNhap: "" });

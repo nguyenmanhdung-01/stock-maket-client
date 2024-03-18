@@ -2,19 +2,11 @@ import axios from "axios";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
 import HighchartsReact from "highcharts-react-official";
 import HighCharts from "highcharts/highstock";
 const KEY = process.env.REACT_APP_KET;
 const Forex = () => {
   const { t } = useTranslation();
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm();
   const [fromCurrent, setFromCurrent] = useState("");
   const [toCurrent, setToCurrent] = useState("");
   const [forexRealTime, setForexRealTime] = useState({});
@@ -94,21 +86,7 @@ const Forex = () => {
       parseFloat(values["4. close"]),
     ];
   });
-  resultArray.sort((a, b) => a[0] - b[0]);
-
-  const buyPoints = []; // Mảng chứa các timestamp hoặc chỉ số của điểm mua
-  const sellPoints = []; // Mảng chứa các timestamp hoặc chỉ số của điểm bán
-
-  // Ví dụ: Tìm điểm mua và bán dựa trên giá mở cửa và giá đóng cửa
-  resultArray.forEach((data, index) => {
-    // Kiểm tra điều kiện để xác định điểm mua và bán
-    // console.log("data: " + data);
-    if (data[1] < data[4]) {
-      buyPoints.push(data[0]); // Thêm timestamp của điểm mua vào mảng buyPoints
-    } else {
-      sellPoints.push(data[0]); // Thêm timestamp của điểm bán vào mảng sellPoints
-    }
-  });
+  resultArray.sort((a, b) => a[0] - b[0]); //xắp xếp từ nhỏ tới lớn dựa theo timestamp
 
   const options = {
     title: {
@@ -229,7 +207,10 @@ const Forex = () => {
             </div>
             <div className=" flex items-center justify-between my-3 bg-yellow-500 px-1 text-white animate-[pulse_1.3s_linear_infinite]">
               <span>{t("Tỷ giá")}</span>
-              <span>{forexRealTime["5. Exchange Rate"]}</span>
+              <span>
+                {forexRealTime["5. Exchange Rate"]}
+                {forexRealTime["3. To_Currency Code"]}
+              </span>
             </div>
             <div className=" flex items-center justify-between my-3">
               <span>{t("Lần làm mới cuối cùng")}</span>

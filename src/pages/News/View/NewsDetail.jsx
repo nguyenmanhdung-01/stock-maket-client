@@ -63,7 +63,6 @@ const NewDetail = () => {
   useEffect(() => {
     fetchData();
   }, [state]);
-
   const handlePageChange = (page) => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("page", page);
@@ -91,7 +90,11 @@ const NewDetail = () => {
                     return (
                       <div
                         key={post.news_id}
-                        onClick={() => navigate(`/${post.slug}`)}
+                        onClick={() =>
+                          navigate(`/${post.slug}`, {
+                            state: post?.news_category,
+                          })
+                        }
                         className="grid grid-cols-4 bg-white my-2 border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 cursor-pointer"
                       >
                         <img

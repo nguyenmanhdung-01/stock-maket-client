@@ -41,7 +41,7 @@ const Dropdown = forwardRef((props, ref) => {
         className={`${classNames} absolute z-[1000] ${
           animation
             ? animation
-            : "origin-top-right transition-all duration-300 ease-in-out"
+            : "origin-top-left transition-all duration-300 ease-in-out"
         } ${openWrapper ? "scale-100" : "scale-0"}`}
       >
         {children}

@@ -28,7 +28,7 @@ const LayoutDefault = ({ children }) => {
             navigate("/admin/default", { replace: true });
             window.location.reload();
           }}
-          className=" fixed left-1 top-[50%] bg-yellow-400 px-3 py-2 text-white text-xl shadow-lg border border-white rounded-r-lg hover:bg-yellow-600 cursor-pointer"
+          className=" fixed left-1 top-[50%] bg-yellow-400 px-3 py-2 text-white text-xl shadow-lg border border-white rounded-r-lg hover:bg-yellow-600 cursor-pointer xl:block lg:block md:hidden sm:hidden"
         >
           <FontAwesomeIcon icon={faScrewdriverWrench} className=" mr-2" />
           Trang quản trị

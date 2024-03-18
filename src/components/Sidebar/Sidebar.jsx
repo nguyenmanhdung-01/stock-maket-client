@@ -185,17 +185,17 @@ const Sidebar = ({ open, setOpen }) => {
         {t("Liên hệ")}
       </div>
 
-      {/* <div
+      <div
         className={`px-3 py-4 hover:bg-slate-200 cursor-pointer mr-1 ${
-          selectedTab === "contact" ? "bg-slate-200 text-black" : ""
+          selectedTab === "admin" ? "bg-slate-200 text-black" : ""
         }`}
         onClick={() => {
-          handleTabClick("contact");
-          navigate("/contact");
+          handleTabClick("admin");
+          navigate("/admin/default", { replace: true });
         }}
       >
-        {t("Liên hệ")}
-      </div> */}
+        {t("Trang quản trị")}
+      </div>
     </div>
   );
 };

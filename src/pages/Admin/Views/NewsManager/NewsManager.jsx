@@ -158,7 +158,7 @@ const NewsManager = () => {
   };
 
   const options = listCategory;
-
+  console.log("data", data);
   return (
     <>
       {/* <h1
@@ -230,6 +230,8 @@ const NewsManager = () => {
                     <th className="border border-blue-400 laptop:table-cell desktop:table-cell tablet:table-cell phone:hidden">
                       Thời gian
                     </th>
+                    <th className="border border-blue-400">Tên danh mục</th>
+
                     <th className="border border-blue-400">Chức năng</th>
                   </tr>
                 </thead>
@@ -267,18 +269,16 @@ const NewsManager = () => {
                             : ""}
                         </td>
 
-                        <td
-                          style={{
-                            display: "-webkit-box",
-                          }}
-                          className="text-center line-clamp-1"
-                        >
+                        <td className="text-center line-clamp-1 max-w-[230px]">
                           {item && item.subcontent}
                         </td>
                         <td className="text-center laptop:table-cell desktop:table-cell tablet:table-cell phone:hidden">
                           {dayjs(item.created_at.slice(0, 10)).format(
                             "DD/MM/YYYY"
                           )}
+                        </td>
+                        <td className="text-center">
+                          {item?.news_category?.name}
                         </td>
                         <td className="flex items-center justify-center p-2">
                           <Button

@@ -54,6 +54,7 @@ const Contact = () => {
     if (data.checkCaptcha !== captcha) {
       return false;
     }
+    console.log("data", data);
     try {
       const response = await toast.promise(
         axios.post(`${DOMAIN}/contact/`, data),
@@ -71,7 +72,7 @@ const Contact = () => {
     //reset();
   };
   return (
-    <div className=" grid grid-cols-5 gap-4">
+    <div className=" grid grid-cols-5 gap-4 lg:grid-cols-5 xl:grid-cols-5 md:grid-cols-1 sm:grid-cols-1 xl:gap-4 lg:gap-4 md:gap-0 sm:gap-0">
       <div className=" col-span-3 dark:text-white text-white bg-rgba p-2">
         <p>
           Để không ngừng nâng cao chất lượng dịch vụ và đáp ứng tốt hơn nữa các
@@ -215,14 +216,15 @@ const Contact = () => {
                             : "Vui lòng nhập ít nhất 10 ký tự",
                         },
                       })}
-                      placeholder="Họ và tên"
                       defaultValue={
                         // (auth && currentUser.displayName) ||
-                        auth && auth.userID && auth.userID.HoVaTen !== null
-                          ? auth?.userID.HoVaTen
+
+                        auth && auth?.userID?.HoVaTen
+                          ? auth.userID?.HoVaTen
                           : ""
                       }
-                      disabled={auth && auth?.userID?.HoVaTen ? true : false}
+                      placeholder="Họ và tên"
+                      // disabled={auth && auth?.userID?.HoVaTen ? true : false}
                     />
                     <span className=" text-red-600 text-[18px] absolute top-[50%] right-[10px] translate-y-[-30%]">
                       *

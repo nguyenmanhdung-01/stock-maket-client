@@ -16,7 +16,7 @@ require("highcharts/modules/annotations-advanced")(HighCharts);
 require("highcharts/modules/price-indicator")(HighCharts);
 require("highcharts/modules/full-screen")(HighCharts);
 require("highcharts/indicators/volume-by-price")(HighCharts);
-// require("highcharts/themes/high-contrast-light")(HighCharts);
+require("highcharts/themes/high-contrast-light")(HighCharts);
 
 highchartsMore(HighCharts);
 const HighChartsStock = ({ options, ref }) => {

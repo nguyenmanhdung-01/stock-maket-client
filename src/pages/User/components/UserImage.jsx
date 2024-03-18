@@ -68,7 +68,7 @@ const UserImage = ({ dataUser, refreshData, posts }) => {
       </div>
 
       {/* Post followers */}
-      <div className="mt-6 mb-3 flex gap-4 md:!gap-14">
+      <div className="mt-6 mb-3 flex gap-4 md:!gap-5">
         <div className="flex flex-col items-center justify-center">
           <p className="text-2xl font-bold text-navy-700 dark:text-white">
             {posts}

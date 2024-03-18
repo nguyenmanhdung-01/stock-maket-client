@@ -33,7 +33,7 @@ const Login = () => {
       let expiresInSeconds = expiresIn;
 
       intervalId = setInterval(() => {
-        console.log(expiresInSeconds);
+        // console.log(expiresInSeconds);
         expiresInSeconds--;
 
         if (expiresInSeconds < 0) {

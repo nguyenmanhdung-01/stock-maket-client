@@ -64,7 +64,7 @@ const Header = () => {
   }, []);
   return (
     <div className="sticky top-0 z-[2000]">
-      <div className="w-full flex items-center justify-end bg-navy-700 py-1 px-32 border-b border-blue-400 dark:border-b-white drop-shadow-xl">
+      <div className="w-full flex items-center justify-end bg-navy-700 py-1 px-32 xl:px-32 lg:px-32 md:px-10 sm:px-8 border-b border-blue-400 dark:border-b-white drop-shadow-xl">
         <div className="inline-flex items-center ">
           {/* <div className=" max-w-[80px] min-w-[80px] rounded-lg overflow-hidden">
             <img src="/assets/images/bg-stock.jpg" className="" alt="" />
@@ -128,7 +128,7 @@ const Header = () => {
                     </li>
                   </ul>
                 }
-                classNames={"py-2 top-5 left-[10px] drop-shadow-3xl w-max"}
+                classNames={"py-2 top-5 right-0 drop-shadow-3xl w-max"}
               />
 
               <Dropdown

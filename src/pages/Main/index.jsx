@@ -89,11 +89,15 @@ export default function MainApp() {
   const findPeaksAndTroughs = (data) => {
     const peaks = [];
     const troughs = [];
-
+    // console.log("data", data);
     for (let i = 1; i < data.length - 1; i++) {
+      // console.log("dâtta: " + data[i]);
+      // console.log("data1: " + data[i - 1]);
       if (data[i] > data[i - 1] && data[i] > data[i + 1]) {
+        //lấy theo điểm hiện tại lớn hơn phần tử trc và sau
         peaks.push({ x: i, y: data[i] }); // Điểm đỉnh
       } else if (data[i] < data[i - 1] && data[i] < data[i + 1]) {
+        // lấy theo điểm hiện tại nhỏ hơn phần trc và sau
         troughs.push({ x: i, y: data[i] }); // Điểm đáy
       }
     }
@@ -115,15 +119,15 @@ export default function MainApp() {
               x: dataPoint[0],
               y: ((dataPoint[1] + dataPoint[4]) / 2).toFixed(2),
             },
-            // text: dataPoint[1] < dataPoint[4] ? "Mua" : "Bán",
+            text: dataPoint[1] < dataPoint[4] ? "M" : "B",
             backgroundColor: dataPoint[1] < dataPoint[4] ? "green" : "red",
             // padding: 5,
             borderRadius: 5,
             borderWidth: 1,
             borderColor: "black",
             style: {
-              color: "white", // Thay đổi màu của văn bản thành màu xanh
-              fontSize: "12px", // Cỡ chữ
+              color: "white",
+              fontSize: "12px",
             },
           })),
         },
@@ -138,6 +142,7 @@ export default function MainApp() {
               x: ohlc[point.x][0], // Thời gian (timestamp) của điểm đỉnh
               y: ohlc[point.x][2], // Giá cao (high) tương ứng với điểm đỉnh
             },
+            text: "Đỉnh",
             backgroundColor: "green",
             color: "#FFFFFF", //
             borderRadius: 5,
@@ -157,6 +162,7 @@ export default function MainApp() {
               x: ohlc[point.x][0], // Thời gian (timestamp) của điểm đáy
               y: ohlc[point.x][3], // Giá thấp (low) tương ứng với điểm đáy
             },
+            text: "Đáy",
             backgroundColor: "red", // Màu nền
             borderRadius: 5,
             borderWidth: 1,

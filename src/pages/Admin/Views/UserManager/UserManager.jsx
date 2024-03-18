@@ -31,8 +31,8 @@ const options = [
     value: 1,
   },
   {
-    label: "Chưa khóa",
-    value: 1,
+    label: "Đang hoạt động",
+    value: 0,
   },
 ];
 
@@ -198,7 +198,7 @@ const UserManager = () => {
             </button>
           </div>
         </div>
-        <div className="relative mt-[3px] flex flex-grow items-center justify-around gap-2 rounded-full bg-white px-2 py-2 shadow-xl shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none md:flex-grow-0 md:gap-1 xl:gap-2">
+        <div className="relative mt-[3px] flex mb-10 flex-grow items-center justify-around gap-2 rounded-full bg-white px-2 py-2 shadow-xl shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none md:flex-grow-0 md:gap-1 xl:gap-2">
           {/* <div className="flex h-full items-center rounded-full bg-lightPrimary text-navy-700 dark:bg-navy-900 dark:text-white xl:w-[225px]">
             <p className="pl-3 pr-2 text-xl">
               <FiSearch className="h-4 w-4 text-gray-400 dark:text-white" />
@@ -231,8 +231,8 @@ const UserManager = () => {
           </button>
         </div>
       </div>
-      <div className=" mt-4 p-4 rounded-2xl bg-white shadow-xl dark:!bg-navy-800 dark:text-white">
-        <table className="border border-blue-400 rounded-lg w-full mt-10 bg-white dark:!bg-navy-800 dark:text-white overflow-y-auto relative">
+      <div className=" mt-4 p-4 rounded-2xl bg-white shadow-xl w-full dark:!bg-navy-800 dark:text-white">
+        <table className="border border-blue-400 rounded-lg bg-white w-full dark:!bg-navy-800 dark:text-white overflow-y-auto relative">
           <thead>
             <tr>
               <th
@@ -301,7 +301,9 @@ const UserManager = () => {
 
                   <td className="text-center">{item?.HoVaTen}</td>
 
-                  <td className="text-center">{item?.Email}</td>
+                  <td className="text-center line-clamp-1 sm:table-cell">
+                    {item?.Email}
+                  </td>
                   <td className="text-center">
                     {item &&
                       item.NgayTao &&
