@@ -20,14 +20,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Card from "../../components/Card";
+import { useNavigate } from "react-router-dom";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const Contact = () => {
   const { auth } = useAuth();
-  console.log("auth", auth);
+  // console.log("auth", auth);
   const [captcha, setCaptcha] = useState(generateCaptcha);
   // const { currentUser } = useContext();
-  let currentUser;
-  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -54,6 +54,7 @@ const Contact = () => {
     if (data.checkCaptcha !== captcha) {
       return false;
     }
+    console.log("data", data);
     try {
       const response = await toast.promise(
         axios.post(`${DOMAIN}/contact/`, data),
@@ -71,7 +72,7 @@ const Contact = () => {
     //reset();
   };
   return (
-    <div className=" grid grid-cols-5 gap-4">
+    <div className=" grid grid-cols-5 gap-4 lg:grid-cols-5 xl:grid-cols-5 md:grid-cols-1 sm:grid-cols-1 xl:gap-4 lg:gap-4 md:gap-0 sm:gap-0">
       <div className=" col-span-3 dark:text-white text-white bg-rgba p-2">
         <p>
           Để không ngừng nâng cao chất lượng dịch vụ và đáp ứng tốt hơn nữa các
@@ -215,14 +216,15 @@ const Contact = () => {
                             : "Vui lòng nhập ít nhất 10 ký tự",
                         },
                       })}
-                      placeholder="Họ và tên"
                       defaultValue={
                         // (auth && currentUser.displayName) ||
-                        auth && auth.userID && auth.userID.HoVaTen !== null
-                          ? auth?.userID.HoVaTen
+
+                        auth && auth?.userID?.HoVaTen
+                          ? auth.userID?.HoVaTen
                           : ""
                       }
-                      disabled={auth && auth?.userID?.HoVaTen ? true : false}
+                      placeholder="Họ và tên"
+                      // disabled={auth && auth?.userID?.HoVaTen ? true : false}
                     />
                     <span className=" text-red-600 text-[18px] absolute top-[50%] right-[10px] translate-y-[-30%]">
                       *
@@ -237,13 +239,13 @@ const Contact = () => {
                       <BiLogIn />
                     </button> */}
 
-                  {currentUser ? (
+                  {auth.userID ? (
                     ""
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setOpen(true)}
-                      className="px-[12px] py-[6px] text-[18px] bg-slate-200 border-[1px] border-[#cccccc] "
+                      onClick={() => navigate("/login-page")}
+                      className="px-[12px] py-[5px] text-[18px] bg-slate-200 border-[1px] border-[#cccccc] "
                     >
                       <FontAwesomeIcon icon={faRightToBracket} />
                     </button>

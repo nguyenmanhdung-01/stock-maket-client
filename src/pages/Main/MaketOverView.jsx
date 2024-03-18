@@ -1,68 +1,117 @@
+import {
+  faArrowTrendDown,
+  faArrowTrendUp,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Card from "../../components/Card";
 const DOMAIN = process.env.REACT_APP_DOMAIN;
-const KEY = process.env.REACT_APP_KEY;
+const KEY = process.env.REACT_APP_KET;
 
-const MarketOverviewWidget = () => {
+const MarketOverviewWidget = ({ symbol }) => {
+  console.log("symbol", symbol);
   const { t } = useTranslation();
   const [market, setMarket] = useState({});
   const fetchGlobalQuote = async () => {
     try {
       const response = await axios.get(
-        `${DOMAIN}/query?function=GLOBAL_QUOTE&symbol=BA&apikey=${KEY}`
+        `https://alpha-vantage.p.rapidapi.com/query?function=GLOBAL_QUOTE&symbol=${symbol}`,
+        {
+          headers: {
+            "X-RapidAPI-Key":
+              "53428faddfmsh7bdfe1baaabb513p19c45ajsnb8058863e96d",
+            "X-RapidAPI-Host": "alpha-vantage.p.rapidapi.com",
+          },
+        }
       );
-      setMarket(response.data);
+      console.log("query", response);
+      setMarket(response.data["Global Quote"]);
     } catch (error) {
       console.log(error.message);
     }
   };
-  useEffect(() => {}, []);
+
+  useEffect(() => {
+    if (symbol) {
+      fetchGlobalQuote();
+    }
+  }, [symbol]);
 
   return (
-    <div className="w-full bg-navy-800 text-white px-6 py-6 rounded-lg">
-      <div className=" flex items-center justify-between mb-3">
-        <span>{t("Ký hiện")}</span>
-        <span>IBM</span>
-      </div>
-      <div className=" flex items-center justify-between my-3">
-        <span>{t("Giá mở cửa")}</span>
-        <span>143.6200</span>
-      </div>
-      <div className=" flex items-center justify-between my-3">
-        <span>{t("Giá cao nhất")}</span>
-        <span>144.7000</span>
-      </div>
-      <div className=" flex items-center justify-between my-3">
-        <span>{t("Giá thấp nhất")}</span>
-        <span>141.7100</span>
-      </div>
-      <div className=" flex items-center justify-between my-3">
-        <span>{t("Giá cuối cùng")}</span>
-        <span>142.5200</span>
-      </div>
-      <div className=" flex items-center justify-between my-3">
-        <span>{t("Khối lượng giao dịch")}</span>
-        <span>5469227</span>
-      </div>
-      <div className=" flex items-center justify-between my-3">
-        <span>{t("Ngày giao dịch mới nhất")}</span>
-        <span>{dayjs("2023-10-27").format("DD-MM-YYYY")}</span>
-      </div>
-      <div className=" flex items-center justify-between my-3">
-        <span>{t("Giá đóng cửa trước đó")}</span>
-        <span>143.7600</span>
-      </div>
-      <div className=" flex items-center justify-between my-3">
-        <span>{t("Thay đổi")}</span>
-        <span>-1.2400</span>
-      </div>
-      <div className=" flex items-center justify-between mt-3">
-        <span>{t("Phần trăm thay đổi")}</span>
-        <span>-0.8625%</span>
-      </div>
-    </div>
+    <Card extra={"rounded-none rounded-br-lg "}>
+      {market ? (
+        <div className="w-full px-6 py-6 border-t">
+          <div className=" flex items-center justify-between mb-3">
+            <span>{t("Ký hiệu")}</span>
+            <span className=" font-bold">{market["01. symbol"] || ""}</span>
+          </div>
+          <div className=" flex items-center justify-between my-3">
+            <span>{t("Giá mở cửa")}</span>
+            <span>{market["02. open"] || ""}</span>
+          </div>
+          <div className=" flex items-center justify-between my-3">
+            <span>{t("Giá cao nhất")}</span>
+            <span>{market["03. high"] || ""}</span>
+          </div>
+          <div className=" flex items-center justify-between my-3">
+            <span>{t("Giá thấp nhất")}</span>
+            <span>{market["04. low"] || ""}</span>
+          </div>
+          <div className=" flex items-center justify-between my-3 bg-purple-700 text-white animate-[pulse_1.3s_linear_infinite] px-1">
+            <span>{t("Giá cuối cùng")}</span>
+            <span>{market["05. price"] || ""}</span>
+          </div>
+          <div className=" flex items-center justify-between my-3">
+            <span>{t("Khối lượng giao dịch")}</span>
+            <span>{market["06. volume"] || ""}</span>
+          </div>
+          <div className=" flex items-center justify-between my-3">
+            <span>{t("Ngày giao dịch mới nhất")}</span>
+            <span>
+              {dayjs(market["07. latest trading day"]).format("DD-MM-YYYY")}
+            </span>
+          </div>
+          <div className=" flex items-center justify-between my-3">
+            <span>{t("Giá đóng cửa trước đó")}</span>
+            <span>{market["08. previous close"] || ""}</span>
+          </div>
+          <div className=" flex items-center justify-between my-3">
+            <span>{t("Thay đổi")}</span>
+            {parseFloat(market["09. change"], 10) < 0 ? (
+              <span className=" text-red-500 animate-pulse font-bold">
+                <FontAwesomeIcon className="mr-1" icon={faArrowTrendDown} />
+                {parseFloat(market["09. change"], 10) || ""}
+              </span>
+            ) : (
+              <span className=" text-green-500 animate-pulse font-bold">
+                <FontAwesomeIcon className="mr-1" icon={faArrowTrendUp} />
+                {parseFloat(market["09. change"], 10) || ""}
+              </span>
+            )}
+          </div>
+          <div className=" flex items-center justify-between mt-3">
+            <span>{t("Phần trăm thay đổi")}</span>
+            {parseFloat(market["10. change percent"]?.replace("%", ""), 10) <
+            0 ? (
+              <span className=" text-red-500 animate-pulse font-bold">
+                <FontAwesomeIcon className="mr-1" icon={faArrowTrendDown} />
+                {market["10. change percent"] || ""}
+              </span>
+            ) : (
+              <span className=" text-green-500 animate-pulse font-bold">
+                <FontAwesomeIcon className="mr-1" icon={faArrowTrendUp} />
+                {market["10. change percent"] || ""}
+              </span>
+            )}
+          </div>
+        </div>
+      ) : (
+        "Không có dữ liệu"
+      )}
+    </Card>
   );
 };
 

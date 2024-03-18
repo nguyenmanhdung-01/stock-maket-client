@@ -1,37 +1,34 @@
 import React from "react";
 
-// Admin Imports
-
-// import NFTMarketplace from "views/admin/marketplace";
-// import Profile from "views/admin/profile";
-// import DataTables from "views/admin/tables";
-// // import RTLDefault from "views/rtl/default";
-
-// // Auth Imports
-// import SignIn from "views/auth/SignIn";
-
-// Icon Imports
-import {
-  MdHome,
-  MdOutlineShoppingCart,
-  MdBarChart,
-  MdPerson,
-  MdLock,
-} from "react-icons/md";
+import { MdHome, MdBarChart, MdPerson, MdLock } from "react-icons/md";
 import MainDashboard from "./Views/MainDashboard/MainDashboard";
 import UserManager from "./Views/UserManager/UserManager";
 import ContactManager from "./Views/ContactManager/ContactManager";
-import MainApp from "../Main";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAddressBook } from "@fortawesome/free-regular-svg-icons";
-import { faBars, faUsers } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faUsers,
+  faUsersGear,
+} from "@fortawesome/free-solid-svg-icons";
 import ProfileOverview from "./Views/profile";
 import QL_PhanQuyen from "./Views/QL_PhanQuyen/QL_PhanQuyen";
 import ContactManagerDetail from "./Views/ContactManager/ContactManagerDetail";
 import CategoryManager from "./Views/CategoryManager/CategoryManager";
 import NewsManager from "./Views/NewsManager/NewsManager";
 import NewsDetail from "./Views/NewsManager/NewsDetail";
+import useAuth from "../../hooks/redux/auth/useAuth";
+import { getNhomQuyen } from "../../utils/constants/formatStringName";
+import NotFoundPage from "../NotFoundPage/NotFoundPage";
 
+// const GenerateRoutes = () => {
+//   const { auth } = useAuth();
+//   const nhomQuyen = getNhomQuyen(auth);
+//   const tenDangNhapAdmin = auth.userID?.TenDangNhap?.toLowerCase() === "admin";
+
+//   function containsAny(arr, valuesToCheck) {
+//     return valuesToCheck.some((value) => arr?.includes(value));
+//   }
 const routes = [
   {
     name: "Main Dashboard",
@@ -75,6 +72,12 @@ const routes = [
     layout: "/admin",
     path: "contactManager",
     icon: <FontAwesomeIcon icon={faAddressBook} className="h-6 w-6" />,
+    // component:
+    //   containsAny(nhomQuyen, [14, 15, 16]) || tenDangNhapAdmin ? (
+    //     <ContactManager />
+    //   ) : (
+    //     <NotFoundPage />
+    //   ),
     component: <ContactManager />,
   },
   {
@@ -89,8 +92,9 @@ const routes = [
     name: "Quản lý phân quyền",
     layout: "/admin",
     path: "phan-quyen",
-    icon: <MdPerson className="h-6 w-6" />,
+    icon: <FontAwesomeIcon icon={faUsersGear} className="h-6 w-6" />,
     component: <QL_PhanQuyen />,
+    quyen: ["admin"],
   },
 
   {
@@ -108,12 +112,15 @@ const routes = [
     icon: <MdLock className="h-6 w-6" />,
     //   component: <SignIn />,
   },
-  //   {
-  //     name: "Trang chủ",
-  //     layout: "/",
-  //     path: "/",
-  //     icon: <MdHome className="h-6 w-6" />,
-  //     component: <MainApp />,
-  //   },
+  {
+    name: "",
+    layout: "/admin",
+    path: "/notFoundPage",
+    component: <NotFoundPage />,
+    hidden: true,
+  },
 ];
+//   return routes;
+// };
+
 export default routes;

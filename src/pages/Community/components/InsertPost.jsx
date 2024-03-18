@@ -7,8 +7,11 @@ import axios from "axios";
 import ReactQuillEditor from "../../../components/ReactQuill";
 import Button from "../../../components/Buttons/Button";
 import useAuth from "../../../hooks/redux/auth/useAuth";
+import socket from "../../../socketService";
+
 const DOMAIN = process.env.REACT_APP_STOCK;
-const InsertPost = () => {
+
+const InsertPost = ({ fetchData, setOpen }) => {
   const { auth } = useAuth();
   const {
     register,
@@ -48,8 +51,8 @@ const InsertPost = () => {
           .then(() => {
             // Cập nhật dữ liệu mới nhất tại đây
             toast.success("Thêm Bài Viết Thành Công");
-            // fetchData();
-            // setOpen(false);
+            fetchData();
+            setOpen(false);
           })
           .catch((error) => {
             // Xử lý lỗi trong quá trình tải lên
@@ -66,11 +69,18 @@ const InsertPost = () => {
         await axios
           .post(`${DOMAIN}/post/`, value)
 
-          .then(() => {
+          .then((response) => {
+            socket.emit("createPost", {
+              user: auth.userID,
+              post: response.data,
+              message: `Đã đăng một bài viết mới`,
+              recipients: [1, 2],
+              time: new Date(),
+            });
             // Cập nhật dữ liệu mới nhất tại đây
             toast.success("Thêm Bài Viết Thành Công");
-            // fetchData();
-            // setOpen(false);
+            fetchData();
+            setOpen(false);
           })
           .catch((error) => {
             // Xử lý lỗi trong quá trình tải lên

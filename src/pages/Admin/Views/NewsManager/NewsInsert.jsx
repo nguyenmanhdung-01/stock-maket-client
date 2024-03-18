@@ -6,16 +6,20 @@ import slugify from "slugify";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import useAuth from "../../../../hooks/redux/auth/useAuth";
+import { useForm } from "react-hook-form";
+import Button from "../../../../components/Buttons/Button";
+import { uploadImageToFirebase } from "../../../../utils/constants/uploadImage";
 
 const DOMAIN = process.env.REACT_APP_STOCK;
 
 const NewsInsert = ({ fetchData, setOpen }) => {
+  const { register, handleSubmit, setValue } = useForm({ criteriaMode: "all" });
   const { auth } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const handleFormSubmit = async (data) => {
+  const onSubmit = async (data) => {
     // Xử lý logic khi submit form
+    console.log("data", data.image[0]);
+
     try {
-      setLoading(true);
       const slug = slugify(data.title, {
         replacement: "-",
         remove: undefined,
@@ -24,48 +28,28 @@ const NewsInsert = ({ fetchData, setOpen }) => {
         locale: "vi",
         trim: true,
       });
-
       let image = null;
-
       if (data.image) {
-        const formData = new FormData();
-        formData.append("file", data.image[0]);
+        const imageUrl = await uploadImageToFirebase(data.image[0]);
 
-        // Sử dụng axios để gửi yêu cầu không đồng bộ
-        await axios
-          .post(`http://giamngheo.bkt.net.vn/file/upload`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
-          .then((response) => {
-            // Xử lý phản hồi sau khi tải lên thành công
-            image = response.data?.file_path;
-            //console.log("image: " + image);
-
-            const value = { ...data, slug, image, userId: auth.userID.id };
-            return axios.post(`${DOMAIN}/news/`, value);
-          })
-          .then(() => {
-            // Cập nhật dữ liệu mới nhất tại đây
-            toast.success("Thêm Bài Viết Thành Công");
-            fetchData();
-            setOpen(false);
-          })
-          .catch((error) => {
-            // Xử lý lỗi trong quá trình tải lên
-            console.error("Upload error:", error);
-          });
-        setLoading(false);
+        const value = {
+          ...data,
+          slug,
+          image: imageUrl,
+          userId: auth.userID.id,
+        };
+        await axios.post(`${DOMAIN}/news/`, value);
+        toast.success("Thêm tin tức thành công");
+        fetchData();
+        setOpen(false);
       } else {
         const value = { ...data, slug, image, userId: auth.userID.id };
         await axios
           .post(`${DOMAIN}/news/`, value)
           .then(() => {
             // Cập nhật dữ liệu mới nhất tại đây
-            loading
-              ? toast.error("Thêm Bài Viết Thành Công")
-              : toast.success("Thêm Bài Viết Thành Công");
+
+            toast.success("Thêm tin tức Thành Công");
 
             fetchData();
             setOpen(false);
@@ -81,13 +65,11 @@ const NewsInsert = ({ fetchData, setOpen }) => {
   };
   const [searchParams, setSearchParams] = useSearchParams();
   const [listCategory, setListCategory] = useState([]);
-  const page = searchParams.get("page") || 1;
 
   const fetchDataStatic = async () => {
     try {
-      const sheet = page ? page : 1;
       const result = await axios.get(
-        `${DOMAIN}/newscategory/getAllNewsCategory?page=${sheet}`,
+        `${DOMAIN}/newscategory/getAllNewsCategory?page=1`,
         {
           withCredentials: true,
         }
@@ -106,7 +88,7 @@ const NewsInsert = ({ fetchData, setOpen }) => {
 
   useEffect(() => {
     fetchDataStatic();
-  }, [page]);
+  }, []);
 
   const newsFormFields = [
     { name: "title", label: "Tiêu đề", type: "text", col_span: true },
@@ -138,7 +120,22 @@ const NewsInsert = ({ fetchData, setOpen }) => {
   ];
   return (
     <Card title={"Thêm bài viết"} className={"py-2 px-3"}>
-      <Form formFields={newsFormFields} onSubmit={handleFormSubmit} />;
+      <form action="" onSubmit={handleSubmit(onSubmit)} className="text-center">
+        <Form
+          formFields={newsFormFields}
+          register={register}
+          setValue={setValue}
+          // handleSubmit={handleSubmit}
+          // onSubmit={onSubmit}
+        />
+        <Button
+          className={
+            "col-span-2 mt-3 px-4 bg-blue-500 hover:bg-blue-700 text-[18px] text-white font-semibold justify-center"
+          }
+          title={"Lưu"}
+          type={"submit"}
+        />
+      </form>
     </Card>
   );
 };

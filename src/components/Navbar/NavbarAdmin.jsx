@@ -1,15 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Dropdown from "../Dropdown";
 import { FiAlignJustify } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { BsArrowBarUp } from "react-icons/bs";
 import { RiMoonFill, RiSunFill } from "react-icons/ri";
 import { IoMdNotificationsOutline } from "react-icons/io";
+import useAuth from "../../hooks/redux/auth/useAuth";
+import Notification from "../Notifications/index";
+import axios from "axios";
+
+const DOMAIN = process.env.REACT_APP_STOCK;
 
 const NavbarAdmin = (props) => {
+  const dropdownRef = React.useRef(null);
   const { onOpenSidenav, brandText } = props;
   const [darkmode, setDarkmode] = React.useState(false);
   const navigate = useNavigate();
+  const { auth } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+
+  const getDataNotifications = async () => {
+    try {
+      const response = await axios.get(`${DOMAIN}/notification/`);
+      const notifications = response.data.filter(
+        (notification) => notification.recipientId === auth.userID.id.toString()
+      );
+      setNotifications(notifications);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const unwatchedNotifications = notifications.filter(
+    (notification) => notification.watched === false
+  );
+
+  const closeDropdown = () => {
+    if (dropdownRef.current) {
+      dropdownRef.current.closeDropdown();
+    }
+  };
+
+  useEffect(() => {
+    getDataNotifications();
+  }, []);
   return (
     <nav className="sticky top-4 z-40 flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">
       <div className="ml-[6px]">
@@ -50,51 +84,25 @@ const NavbarAdmin = (props) => {
         </span>
         {/* start Notification */}
         <Dropdown
+          ref={dropdownRef}
           button={
-            <p className="cursor-pointer">
+            <>
               <IoMdNotificationsOutline className="h-6 w-6 text-gray-600 dark:text-white" />
-            </p>
+
+              {unwatchedNotifications.length > 0 ? (
+                <>
+                  <span className="animate-ping  absolute right-0 inline-flex h-3 w-3 rounded-full bg-sky-400 opacity-75"></span>
+                  <span className="absolute right-0 inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                </>
+              ) : null}
+            </>
           }
           animation="origin-[65%_0%] md:origin-top-right transition-all duration-300 ease-in-out"
           children={
-            <div className="flex w-[360px] flex-col gap-3 rounded-[20px] bg-white p-4 shadow-xl shadow-shadow-500 dark:!bg-navy-700 dark:text-white dark:shadow-none sm:w-[460px]">
-              <div className="flex items-center justify-between">
-                <p className="text-base font-bold text-navy-700 dark:text-white">
-                  Notification
-                </p>
-                <p className="text-sm font-bold text-navy-700 dark:text-white">
-                  Mark all read
-                </p>
-              </div>
-
-              <button className="flex w-full items-center">
-                <div className="flex h-full w-[85px] items-center justify-center rounded-xl bg-gradient-to-b from-brandLinear to-brand-500 py-4 text-2xl text-white">
-                  <BsArrowBarUp />
-                </div>
-                <div className="ml-2 flex h-full w-full flex-col justify-center rounded-lg px-1 text-sm">
-                  <p className="mb-1 text-left text-base font-bold text-gray-900 dark:text-white">
-                    New Update: Horizon UI Dashboard PRO
-                  </p>
-                  <p className="font-base text-left text-xs text-gray-900 dark:text-white">
-                    A new update for your downloaded item is available!
-                  </p>
-                </div>
-              </button>
-
-              <button className="flex w-full items-center">
-                <div className="flex h-full w-[85px] items-center justify-center rounded-xl bg-gradient-to-b from-brandLinear to-brand-500 py-4 text-2xl text-white">
-                  <BsArrowBarUp />
-                </div>
-                <div className="ml-2 flex h-full w-full flex-col justify-center rounded-lg px-1 text-sm">
-                  <p className="mb-1 text-left text-base font-bold text-gray-900 dark:text-white">
-                    New Update: Horizon UI Dashboard PRO
-                  </p>
-                  <p className="font-base text-left text-xs text-gray-900 dark:text-white">
-                    A new update for your downloaded item is available!
-                  </p>
-                </div>
-              </button>
-            </div>
+            <Notification
+              closeDropDown={closeDropdown}
+              refreshData={getDataNotifications}
+            />
           }
           classNames={"py-2 top-4 -left-[230px] md:-left-[440px] w-max"}
         />
@@ -122,9 +130,13 @@ const NavbarAdmin = (props) => {
         <Dropdown
           button={
             <img
-              className="h-10 w-10 rounded-full"
-              src="/assets/images/avatar4.png"
-              alt="Elon Musk"
+              className="h-10 w-10 rounded-full object-cover"
+              src={
+                auth.userID?.Avatar !== null
+                  ? auth.userID?.Avatar
+                  : "/assets/images/img_user.png"
+              }
+              alt="Ảnh đại diện"
             />
           }
           children={
@@ -132,7 +144,7 @@ const NavbarAdmin = (props) => {
               <div className="p-4">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold text-navy-700 dark:text-white">
-                    👋 Hey, Adela
+                    👋 Xin chào, {auth.userID.HoVaTen || "Người dùng"}
                   </p>{" "}
                 </div>
               </div>

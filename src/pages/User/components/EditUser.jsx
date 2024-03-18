@@ -5,22 +5,27 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { formatDay, formatDayV2 } from "../../../utils/constants/formatDay";
+import useAuth from "../../../hooks/redux/auth/useAuth";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const EditUser = ({ dataUser, setOpen, refreshData }) => {
+  const { auth, setAuth } = useAuth();
   const {
     register,
     formState: { errors },
     handleSubmit,
-    reset,
-    getValues,
   } = useForm({ criteriaMode: "all" });
   const onSubmit = async (data) => {
+    console.log("onSubmit", data);
     try {
       const response = await axios.put(
         `${DOMAIN}/users/edit/${dataUser?.id}`,
         data
       );
-      console.log("success", response);
+      // console.log("success", response.data);
+      setAuth({
+        ...auth,
+        userID: response.data,
+      });
       toast.success("Chỉnh sửa thành công! Lưu thay đổi");
       refreshData();
       setOpen(false);
@@ -221,10 +226,10 @@ const EditUser = ({ dataUser, setOpen, refreshData }) => {
                   icon="fa-solid fa-mars"
                 />
                 <input
-                  type="radio"
-                  defaultChecked={dataUser?.GioiTinh == 1}
                   {...register("GioiTinh", {})}
+                  type="radio"
                   value={1}
+                  defaultChecked={dataUser?.GioiTinh == 1}
                   id=""
                 />
               </label>
@@ -234,10 +239,10 @@ const EditUser = ({ dataUser, setOpen, refreshData }) => {
                   icon="fa-solid fa-venus"
                 />
                 <input
-                  type="radio"
-                  defaultChecked={dataUser?.GioiTinh == 2}
                   {...register("GioiTinh", {})}
+                  type="radio"
                   value={2}
+                  defaultChecked={dataUser?.GioiTinh == 2}
                   id=""
                 />
               </label>
@@ -247,10 +252,10 @@ const EditUser = ({ dataUser, setOpen, refreshData }) => {
                   icon="fa-solid fa-mars-and-venus"
                 />
                 <input
-                  type="radio"
-                  defaultChecked={dataUser?.GioiTinh == 0}
                   {...register("GioiTinh", {})}
+                  type="radio"
                   value={0}
+                  defaultChecked={dataUser?.GioiTinh == 0}
                   id=""
                 />
               </label>

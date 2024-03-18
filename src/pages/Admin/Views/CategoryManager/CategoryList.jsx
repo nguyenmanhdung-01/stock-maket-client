@@ -7,10 +7,13 @@ import FormDeleteCategory from "./FormDeleteCategory";
 import { GrAdd } from "react-icons/gr";
 import { AiTwotoneEdit, AiTwotoneDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
+import useAuth from "../../../../hooks/redux/auth/useAuth";
+import { getRoleGroup } from "../../../../utils/constants/formatStringName";
 
-const CategoryItem = ({ comment, setOpen, open, fetchData }) => {
-  const DOMAIN = process.env.REACT_APP_STOCK;
-
+const DOMAIN = process.env.REACT_APP_STOCK;
+const CategoryItem = ({ category, setOpen, open, fetchData }) => {
+  const { auth } = useAuth();
+  const nhomQuyen = getRoleGroup(auth);
   const [openEditForm, setOpenEditForm] = useState(false);
   const [newsCategoryEdit, setNewsCategoryEdit] = useState();
   const [openDeleteForm, setOpenDeleteForm] = useState(false);
@@ -58,42 +61,44 @@ const CategoryItem = ({ comment, setOpen, open, fetchData }) => {
     <div>
       <div
         className={`${
-          comment.father_id === null
-            ? "mt-2 pt-3 px-3 border-[1px] border-gray-300 rounded-md bg-gray-100 mb-3"
+          category.father_id === null
+            ? "mt-2 pt-3 px-3 border-[1px] border-gray-300 rounded-md  mb-3"
             : ""
         }`}
       >
         <div className="flex gap-2 items-center mb-3 ">
-          <div className="flex-1 flex justify-between bg-gray-200 rounded-lg px-2 py-1 ">
-            <p>{comment.name}</p>
-            <div className="flex gap-2">
-              <button onClick={() => setOpen(comment.news_category_id)}>
+          <div className="flex-1 flex justify-between  rounded-lg px-2 py-1 ">
+            <p>{category.name}</p>
+            {nhomQuyen?.includes(7) && nhomQuyen?.includes(8) && (
+              <div className="flex gap-2">
+                {/* <button onClick={() => setOpen(category.news_category_id)}>
                 <GrAdd />
-              </button>
-              <button onClick={() => handleEdit(comment)}>
-                <AiTwotoneEdit />
-              </button>
+              </button> */}
+                <button onClick={() => handleEdit(category)}>
+                  <AiTwotoneEdit />
+                </button>
 
-              <button onClick={() => handleDelete(comment)}>
-                <AiTwotoneDelete />
-              </button>
-            </div>
+                <button onClick={() => handleDelete(category)}>
+                  <AiTwotoneDelete />
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        {comment.news_category_id === open && (
+        {category.news_category_id === open && (
           <CategoryFormAdd
-            value={comment}
+            value={category}
             fetchData={fetchData}
             setOpen={setOpen}
           />
         )}
 
-        {comment.children.length > 0 && (
+        {category.children.length > 0 && (
           <div className="ml-4">
-            {comment.children.map((child) => (
+            {category.children.map((child) => (
               <CategoryItem
                 key={child.news_category_id}
-                comment={child}
+                category={child}
                 setOpen={setOpen}
                 open={open}
                 fetchData={fetchData}
@@ -130,13 +135,13 @@ const CategoryItem = ({ comment, setOpen, open, fetchData }) => {
   );
 };
 
-const CategoryList = ({ comments, setOpen, open, fetchData }) => {
+const CategoryList = ({ categorys, setOpen, open, fetchData }) => {
   return (
     <div className={``}>
-      {comments.map((comment) => (
+      {categorys.map((category) => (
         <CategoryItem
-          key={comment.news_category_id}
-          comment={comment}
+          key={category.news_category_id}
+          category={category}
           setOpen={setOpen}
           open={open}
           fetchData={fetchData}

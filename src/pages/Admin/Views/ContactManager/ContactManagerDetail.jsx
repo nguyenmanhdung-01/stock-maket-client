@@ -12,9 +12,13 @@ import ModalV1 from "../../../../components/Modal/ModalV1";
 import { BiTrash } from "react-icons/bi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileLines } from "@fortawesome/free-regular-svg-icons";
+import useAuth from "../../../../hooks/redux/auth/useAuth";
+import { getRoleGroup } from "../../../../utils/constants/formatStringName";
 const DOMAIN = process.env.REACT_APP_STOCK;
 
 const ContactManagerDetail = () => {
+  const { auth } = useAuth();
+  const nhomQuyen = getRoleGroup(auth);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [open, setOpen] = useState(false);
@@ -134,21 +138,21 @@ const ContactManagerDetail = () => {
               <div className="mt-2 py-2 border border-slate-500 flex justify-center gap-2">
                 <Button
                   title={"Gửi phản hồi"}
-                  colorText={
-                    "border border-slate-500 hover:bg-gray-200 bg-white dark:bg-green-500 dark:hover:bg-green-600"
-                  }
+                  className={`border border-slate-500 hover:bg-gray-200 bg-white dark:bg-green-500 dark:hover:bg-green-600 ${
+                    nhomQuyen?.includes(14) ? "" : "hidden"
+                  }`}
                   onClick={reply}
                 />
                 <Button
                   onClick={() => setOpen(true)}
                   title={"Xóa"}
-                  colorText={
-                    "border border-slate-500 hover:bg-gray-200 bg-white dark:bg-red-500 dark:hover:bg-red-600"
-                  }
+                  className={`border border-slate-500 hover:bg-gray-200 bg-white dark:bg-red-500 dark:hover:bg-red-600 ${
+                    nhomQuyen?.includes(15) ? "" : "hidden"
+                  }`}
                 />
                 <Button
                   title={"Quay Lại"}
-                  colorText={
+                  className={
                     "border border-slate-500 hover:bg-gray-200 bg-white dark:bg-navy-600 dark:hover:bg-navy-800"
                   }
                   onClick={back}
@@ -176,7 +180,7 @@ const ContactManagerDetail = () => {
         <div className="flex justify-center mt-3">
           <Button
             title={"Có"}
-            colorText={
+            className={
               "border px-8 text-base text-white bg-red-500 hover:bg-red-600 border-slate-600 gap-2"
             }
             onClick={handleDeleteMultiple}

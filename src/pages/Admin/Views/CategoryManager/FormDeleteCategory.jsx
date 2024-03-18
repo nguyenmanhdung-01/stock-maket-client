@@ -4,7 +4,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 const FormDeleteCategory = ({ newsCategoryDelete }) => {
   return (
     <>
-      <div className="text-[18px] ">
+      <div className="text-[18px] text-center">
         <AiOutlineCloseCircle className="w-[60px] h-[60px] text-red-600 m-auto" />
         <p className="font-bold">Bạn có chắc muốn xóa:</p>{" "}
         {newsCategoryDelete.map((item) => {

@@ -18,9 +18,14 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [arr, setArr] = useState([]);
   const [newsCategory, setNewsCategory] = useState([]);
-  const [selectedTab, setSelectedTab] = useState("home");
+  const [selectedTab, setSelectedTab] = useState(() => {
+    // Kiểm tra nếu có giá trị trong storage, sử dụng giá trị đó, nếu không, mặc định là 'home'
+    const storedTab = localStorage.getItem("selectedTab");
+    return storedTab ? storedTab : "home";
+  });
   const handleTabClick = (tabName) => {
     setSelectedTab(tabName);
+    localStorage.setItem("selectedTab", tabName);
   };
 
   const fetchData = async () => {
@@ -32,7 +37,7 @@ const Navbar = () => {
           withCredentials: true,
         }
       );
-      console.log("category", category);
+      // console.log("category", category);
       const group = groupCategoryByFatherId(category.data.newsCategories);
 
       setArr(group);
@@ -92,9 +97,9 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center ml-3 dark:text-white py-2">
+    <div className="flex items-center ml-3 dark:text-white ">
       <div
-        className={`px-3 rounded-3xl hover:bg-slate-200 mr-1 ${
+        className={`px-3 py-2 rounded-3xl hover:bg-slate-200 cursor-pointer mr-1 ${
           selectedTab === "home" ? "bg-slate-200 text-black" : ""
         }`}
         onClick={() => {
@@ -102,11 +107,11 @@ const Navbar = () => {
           navigate("");
         }}
       >
-        <FontAwesomeIcon icon={faHouseChimney} flip className="mr-1" />
+        <FontAwesomeIcon icon={faHouseChimney} className="mr-1" />
         {t("Trang chủ")}
       </div>
       <div
-        className={`px-3 rounded-3xl hover:bg-slate-200 group/item mr-1 ${
+        className={`px-3 py-2 rounded-3xl hover:bg-slate-200 cursor-pointer group/item mr-1 ${
           selectedTab === "news" ? "bg-slate-200 text-black" : ""
         }`}
         onClick={() => {
@@ -114,7 +119,7 @@ const Navbar = () => {
           navigate(`/news`);
         }}
       >
-        <FontAwesomeIcon icon={faNewspaper} flip className="mr-1" />
+        <FontAwesomeIcon icon={faNewspaper} className="mr-1" />
 
         {t("Tin tức")}
         <ul className=" bg-navy-600 w-[200px] drop-shadow-2xl absolute hidden text-white group-hover/item:block transition duration-350 ease-in-out">
@@ -139,7 +144,7 @@ const Navbar = () => {
         </ul>
       </div>
       <div
-        className={`px-3 rounded-3xl hover:bg-slate-200 mr-1 ${
+        className={`px-3 py-2 rounded-3xl hover:bg-slate-200 cursor-pointer mr-1 ${
           selectedTab === "community" ? "bg-slate-200 text-black" : ""
         }`}
         onClick={() => {
@@ -147,11 +152,11 @@ const Navbar = () => {
           navigate(`/community`);
         }}
       >
-        <FontAwesomeIcon icon={faUsers} flip className="mr-1" />
+        <FontAwesomeIcon icon={faUsers} className="mr-1" />
         {t("Cộng đồng")}
       </div>
       <div
-        className={`px-3 rounded-3xl hover:bg-slate-200 mr-1 ${
+        className={`px-3 py-2 rounded-3xl hover:bg-slate-200 cursor-pointer mr-1 ${
           selectedTab === "contact" ? "bg-slate-200 text-black" : ""
         }`}
         onClick={() => {

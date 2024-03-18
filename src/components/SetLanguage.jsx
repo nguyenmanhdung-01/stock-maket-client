@@ -59,7 +59,7 @@ const SetLanguage = () => {
             </button>
           </div>
         }
-        classNames={"py-2 top-4 drop-shadow-3xl w-max"}
+        classNames={"py-2 top-4 drop-shadow-3xl w-max right-0"}
       />
     </div>
   );

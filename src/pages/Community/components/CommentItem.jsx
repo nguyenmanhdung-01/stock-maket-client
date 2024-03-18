@@ -8,11 +8,22 @@ import { useTranslation } from "react-i18next";
 import useAuth from "../../../hooks/redux/auth/useAuth";
 import { IoSend } from "react-icons/io5";
 import { useForm } from "react-hook-form";
+import { io } from "socket.io-client";
+import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import socket from "../../../socketService";
+import { toast } from "react-toastify";
+import Dropdown from "../../../components/Dropdown";
+import ModalV1 from "../../../components/Modal/ModalV1";
+import Button from "../../../components/Buttons/Button";
+import { BiTrash } from "react-icons/bi";
+import EditComment from "./EditComment";
+import { getRoleGroup } from "../../../utils/constants/formatStringName";
 
 const DOMAIN = process.env.REACT_APP_STOCK;
 dayjs.extend(relativeTime);
+
 const CommentItem = ({ comment, fetchData }) => {
-  // console.log("fetchData", fetchData);
+  console.log("comment", comment);
   const {
     register,
     handleSubmit,
@@ -21,12 +32,24 @@ const CommentItem = ({ comment, fetchData }) => {
   } = useForm({ criteriaMode: "all" });
   const { t } = useTranslation();
   const { auth } = useAuth();
+  const nhomQuyen = getRoleGroup(auth);
+
   // Giả sử bạn có một danh sách các người dùng đã like từ API
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(comment.liked || 0);
   const [usersWhoLiked, setUsersWhoLiked] = useState(comment.likedUsers);
   const [openFormReply, setOpenFormReply] = useState(false);
+  const [openFormEdit, setOpenFormEdit] = useState(false);
+  const [openRemove, setOpenRemove] = useState(false);
   const [replyingToComment, setReplyingToComment] = useState(null);
+  const [id, setId] = useState();
+  const dropdownRef = React.useRef(null);
+  const [idCmt, setIdCmt] = useState();
+  const closeDropdown = () => {
+    if (dropdownRef.current) {
+      dropdownRef.current.closeDropdown();
+    }
+  };
   useEffect(() => {
     // Kiểm tra xem người dùng hiện tại có trong danh sách đã like hay không
     // console.log("usersWhoLiked", usersWhoLiked);
@@ -39,13 +62,26 @@ const CommentItem = ({ comment, fetchData }) => {
     }
   }, [usersWhoLiked]);
 
-  const handleLike = async (id) => {
+  const handleLike = async (comment) => {
     try {
-      console.log(id);
-      const response = await axios.put(`${DOMAIN}/comment/${id}/like`, {
+      // console.log(id);
+      const response = await axios.put(`${DOMAIN}/comment/${comment.id}/like`, {
         userId: auth.userID.id,
       });
-      // console.log("response", response);
+      console.log("response", response);
+      const hasLike = response.data.likedUsers.some(
+        (userId) => userId === auth.userID.id
+      );
+      if (hasLike) {
+        socket.emit("likePost", {
+          user: auth.userID,
+          post: response.data,
+          message: "Đã thích bình luận của bạn:",
+          recipientId: comment.user?.id,
+          time: new Date(),
+          link: `/chi-tiet-bai-viet/${comment.post?.post_id}`,
+        });
+      }
       setLiked(!liked);
       setLikesCount(response.data.liked);
 
@@ -83,18 +119,28 @@ const CommentItem = ({ comment, fetchData }) => {
         .trim();
       const values = {
         ...data,
-        content: `<a class="link_user" href="user-info/${auth?.userID.id}" target="_blank">${textChildren}</a> ${text}`,
+        content: `<a class="link_user" href="/user-info/${auth?.userID.id}" target="_blank">${textChildren}</a> ${text}`,
         father_id: comment.id,
         // TODO: cần lấy theo id của người đăng nhập
         user: auth.userID.id,
         post: comment.post?.post_id,
       };
-      await axios.post(
+      const response = await axios.post(
         `${DOMAIN}/comment/createComment`,
 
         values,
         { withCredentials: true }
       );
+      // console.log("Response", response);
+
+      socket.emit("replyPost", {
+        user: auth.userID,
+        post: comment.post,
+        message: "Đã trả lời về bình luận của bạn",
+        recipientId: comment.user?.id,
+        time: new Date(),
+        link: `/chi-tiet-bai-viet/${comment.post?.post_id}`,
+      });
 
       reset({ content: "" });
       if (fetchData) {
@@ -107,6 +153,21 @@ const CommentItem = ({ comment, fetchData }) => {
     }
   };
 
+  const handleDeleteComment = async () => {
+    try {
+      const response = await axios.delete(
+        `${DOMAIN}/comment/deleteCmt/${idCmt}`
+      );
+      console.log("response", response);
+      toast.success("Xóa bình luận thành công");
+      fetchData();
+      setOpenRemove(false);
+      setIdCmt();
+    } catch (error) {
+      console.log("error", error.message);
+    }
+  };
+
   return (
     <div className="mb-2" key={comment.id}>
       <div
@@ -114,27 +175,98 @@ const CommentItem = ({ comment, fetchData }) => {
           comment.father_id ? "line" : ""
         }`}
       >
-        <div className="max-w-[35px] max-h-[35px] mr-2">
+        <div className=" mr-2">
           <img
-            src="/assets/images/img_user.png"
+            src={
+              comment.user?.Avatar !== null
+                ? `${comment.user?.Avatar}`
+                : "/assets/images/img_user.png"
+            }
             alt=""
-            className="rounded-full border border-white"
+            className="rounded-full border w-[40px] max-h-[35px] border-white object-cover"
           />
         </div>
         <div className="w-full">
-          <div className="bg-slate-100 dark:bg-gray-800 p-2 rounded-md border w-full">
-            <h3 className="font-semibold">{comment.user.HoVaTen}</h3>
-            <p
-              className="w-full break-all"
-              dangerouslySetInnerHTML={{ __html: comment.content }}
-            ></p>
+          <div className="bg-slate-100 dark:bg-gray-800 p-2 rounded-md border w-full flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">{comment.user.HoVaTen}</h3>
+              <p
+                className="w-full break-all"
+                dangerouslySetInnerHTML={{ __html: comment.content }}
+              ></p>
+            </div>
+            {auth?.userID?.id == comment?.user.id ? (
+              <Dropdown
+                button={<FontAwesomeIcon icon={faEllipsis} />}
+                ref={dropdownRef}
+                animation=" transition-all duration-300 ease-in-out"
+                children={
+                  <ul className=" bg-slate-400 rounded-lg">
+                    <li
+                      className={` px-2 py-1 hover:text-blue-700 text-base cursor-pointer
+                        
+                      `}
+                      // onClick={() => {}}
+                    >
+                      <button
+                        className="flex items-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setId(comment.id);
+                          setOpenFormEdit(true);
+                        }}
+                      >
+                        Chỉnh sửa
+                      </button>
+                    </li>
+                    <li className={`px-2 py-1 hover:text-blue-700 text-base`}>
+                      <button
+                        className="flex items-center"
+                        onClick={() => {
+                          setIdCmt(comment.id);
+                          setOpenRemove(true);
+                        }}
+                      >
+                        Xóa
+                      </button>
+                    </li>
+                  </ul>
+                }
+                classNames={"py-2 top-5 right-0 drop-shadow-3xl w-max"}
+              />
+            ) : nhomQuyen?.includes(19) ? (
+              <Dropdown
+                button={<FontAwesomeIcon icon={faEllipsis} />}
+                ref={dropdownRef}
+                animation=" transition-all duration-300 ease-in-out"
+                children={
+                  <ul className=" bg-slate-400 rounded-lg">
+                    <li className={`px-2 py-1 hover:text-blue-700 text-base`}>
+                      <button
+                        className="flex items-center"
+                        onClick={() => {
+                          setIdCmt(comment.id);
+                          setOpenRemove(true);
+                        }}
+                      >
+                        Xóa
+                      </button>
+                    </li>
+                  </ul>
+                }
+                classNames={"py-2 top-5 right-0 drop-shadow-3xl w-max"}
+              />
+            ) : (
+              ""
+            )}
           </div>
+
           <div className="flex items-center justify-between px-3 mt-1">
             <button
               className={`rounded-lg px-2 hover:bg-slate-200 ${
                 liked ? "text-blue-500" : ""
               }`}
-              onClick={() => handleLike(comment.id)}
+              onClick={() => handleLike(comment)}
             >
               {liked ? "Đã thích" : "Thích"}
             </button>
@@ -197,6 +329,36 @@ const CommentItem = ({ comment, fetchData }) => {
           ))}
         </div>
       )}
+      <ModalV1
+        title={<BiTrash className="m-auto w-10 h-10 text-red-500" />}
+        open={openRemove}
+        setOpen={setOpenRemove}
+      >
+        <h2 className="text-xl my-3">Bình luận của bạn sẽ bị xóa</h2>
+        <div className="flex justify-center mt-3">
+          <Button
+            title={"Có"}
+            className={
+              "border px-8 text-base text-white bg-red-500 hover:bg-red-600 border-slate-600 gap-2"
+            }
+            onClick={handleDeleteComment}
+          ></Button>
+        </div>
+      </ModalV1>
+      <ModalV1
+        // title={<BiTrash className="m-auto w-10 h-10 text-red-500" />}
+        open={openFormEdit}
+        setOpen={setOpenFormEdit}
+      >
+        <h2 className="text-xl my-3">Chỉnh sửa comment</h2>
+        <div className="flex justify-center mt-3">
+          <EditComment
+            id={id}
+            setOpen={setOpenFormEdit}
+            fetchData={fetchData}
+          />
+        </div>
+      </ModalV1>
     </div>
   );
 };

@@ -1,27 +1,13 @@
-import localStorageUtils, { KeyStorage } from '../local-storage';
+import localStorageUtils, { KeyStorage } from "../local-storage";
 
 export const getTokenInfo = async () => {
   try {
     const tokenInfo = localStorageUtils.getObject(KeyStorage.AUTH, null);
+    console.log("Token info", tokenInfo);
     if (tokenInfo && tokenInfo?.accessToken) {
-      const timeRefreshToken = Date.now() + 60 * 1000;
+      const timeRefreshToken = Date.now() + tokenInfo.expiresIn * 1000; // Thời gian gần hết hạn token (ví dụ: 1 phút trước khi hết hạn)
       const expireTime = tokenInfo.expiresAt || 0;
-      if (timeRefreshToken < expireTime) {
-        return { ...tokenInfo };
-      } else {
-        if (tokenInfo.refreshToken) {
-          // const result = await refreshTokenApi({ refresh_token: tokenInfo?.refreshToken });
-          // if (result) {
-          //   const newTokenInfo: any = {
-          //     accessToken: result.data.token,
-          //     refreshToken: result.data.refresh_token,
-          //     expiresAt: result.data.expires_at
-          //   };
-          //   setTokenInfo({ ...newTokenInfo });
-          //   return newTokenInfo;
-          // }
-        }
-      }
+
       return tokenInfo;
     }
   } catch (error) {
@@ -31,8 +17,16 @@ export const getTokenInfo = async () => {
 };
 
 export const setTokenInfo = (tokenInfo) => {
-  localStorageUtils.setObject(KeyStorage.AUTH, {
-    ...tokenInfo,
-    expiresAt: Date.now() + Number(tokenInfo?.expiresAt) * 1000,
-  });
+  if (tokenInfo) {
+    const expiresIn = Number(tokenInfo?.expiresIn) || 0;
+    const expiresAt = Date.now() + expiresIn * 1000;
+
+    localStorageUtils.setObject(KeyStorage.AUTH, {
+      ...tokenInfo,
+      expiresAt: expiresAt,
+    });
+  } else {
+    // Xóa thông tin đăng nhập nếu không có thông tin token
+    localStorageUtils.remove(KeyStorage.AUTH);
+  }
 };

@@ -16,6 +16,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import Card from "../../../../components/Card";
 import ModalV1 from "../../../../components/Modal/ModalV1";
+import useAuth from "../../../../hooks/redux/auth/useAuth";
+import { getRoleGroup } from "../../../../utils/constants/formatStringName";
 const DOMAIN = process.env.REACT_APP_STOCK;
 const options = [
   {
@@ -32,6 +34,8 @@ const options = [
   },
 ];
 const ContactManager = () => {
+  const { auth } = useAuth();
+  const nhomQuyen = getRoleGroup(auth);
   const navigate = useNavigate();
   const [contact, setContact] = useState([]);
   const [isCheckedAll, setIsCheckedAll] = useState(false);
@@ -154,15 +158,49 @@ const ContactManager = () => {
       <Card>
         <div className="flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">
           <div className=" p-4 rounded-2xl bg-white shadow-xl dark:!bg-navy-800 dark:text-white">
-            <div>
-              {/* <button className=" bg-green-500 text-white px-3 py-2 rounded-lg">
-                <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                <span>Thêm mới</span>
-              </button> */}
-              {/* <button className=" bg-red-500 text-white px-3 py-2 rounded-lg ml-3">
-                <FontAwesomeIcon icon={faTrashCan} className="mr-2" />
-                <span>Xóa lựa chọn</span>
-              </button> */}
+            <div className="flex gap-2 dark:text-white">
+              <Button
+                onClick={() => {
+                  if (isCheckedItems.length === 0) {
+                    setOpenModalError(true);
+                  } else {
+                    setOpen(true);
+                  }
+                }}
+                icon={<BiTrash />}
+                title={"Xoá Chọn"}
+                className={`hover:bg-red-600 gap-2 bg-red-400 dark:hover:bg-red-600 border text-white ${
+                  nhomQuyen?.includes(15) ? "" : "hidden"
+                }`}
+              />
+              <Button
+                onClick={() => {
+                  if (isCheckedItems.length === 0) {
+                    setOpenModalError(true);
+                  } else {
+                    setCloseStatus(true);
+                  }
+                }}
+                icon={<HiOutlineMail />}
+                title={"Đánh Dấu Là Chưa Đọc"}
+                className={`hover:bg-gray-200 gap-2 dark:hover:bg-yellow-600 border ${
+                  nhomQuyen?.includes(16) ? "" : "hidden"
+                }`}
+              />
+              <Button
+                onClick={() => {
+                  if (isCheckedItems.length === 0) {
+                    setOpenModalError(true);
+                  } else {
+                    setOpenStatus(true);
+                  }
+                }}
+                icon={<HiOutlineMailOpen />}
+                title={"Đánh Dấu Là Đã Đọc"}
+                className={`hover:bg-green-400 gap-2 dark:hover:bg-yellow-600 border border-green-500 ${
+                  nhomQuyen?.includes(16) ? "" : "hidden"
+                }`}
+              />
             </div>
           </div>
           <div className="relative mt-[3px] flex h-[61px] w-[495px] z-40 flex-grow items-center justify-around gap-2 rounded-full bg-white px-2 py-2 shadow-xl shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none md:w-[495px] md:flex-grow-0 md:gap-1 xl:w-[495px] xl:gap-2">
@@ -281,46 +319,7 @@ const ContactManager = () => {
               )}
             </tbody>
           </table>
-          <div className="flex gap-2 mt-3  p-4 rounded-2xl bg-white shadow-xl dark:!bg-navy-800 dark:text-white">
-            <Button
-              onClick={() => {
-                if (isCheckedItems.length === 0) {
-                  setOpenModalError(true);
-                } else {
-                  setOpen(true);
-                }
-              }}
-              icon={<BiTrash />}
-              title={"Xoá Chọn"}
-              colorText={
-                "hover:bg-gray-200 gap-2 bg-red-500 dark:hover:bg-red-600"
-              }
-            />
-            <Button
-              onClick={() => {
-                if (isCheckedItems.length === 0) {
-                  setOpenModalError(true);
-                } else {
-                  setCloseStatus(true);
-                }
-              }}
-              icon={<HiOutlineMail />}
-              title={"Đánh Dấu Là Chưa Đọc"}
-              colorText={"hover:bg-gray-200 gap-2 dark:hover:bg-yellow-600"}
-            />
-            <Button
-              onClick={() => {
-                if (isCheckedItems.length === 0) {
-                  setOpenModalError(true);
-                } else {
-                  setOpenStatus(true);
-                }
-              }}
-              icon={<HiOutlineMailOpen />}
-              title={"Đánh Dấu Là Đã Đọc"}
-              colorText={"hover:bg-gray-200 gap-2 dark:hover:bg-yellow-600"}
-            />
-          </div>
+
           <PaginationV2
             total={count}
             pageSize={4}
@@ -360,8 +359,8 @@ const ContactManager = () => {
         <div className="flex justify-center mt-3">
           <Button
             title={"Có"}
-            colorText={
-              "border px-8 text-base text-white bg-red-500 hover:bg-red-600 border-slate-600 gap-2"
+            classNameBtn={
+              "border px-8 py-2 text-base text-white bg-red-500 hover:bg-red-600 border-slate-600"
             }
             onClick={handleTickClose}
           ></Button>
@@ -379,7 +378,7 @@ const ContactManager = () => {
         <div className="flex justify-center mt-3">
           <Button
             title={"Có"}
-            colorText={
+            className={
               "border px-8 text-base text-white bg-red-500 hover:bg-red-600 border-slate-600 gap-2"
             }
             onClick={handleTickOpen}

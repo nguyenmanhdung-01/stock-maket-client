@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 import UserImage from "./components/UserImage";
 import UserInfor from "./components/UserInfor";
 import YourPost from "./components/YourPost";
 import NewsSaved from "./components/NewsSaved";
+
 const DOMAIN = process.env.REACT_APP_STOCK;
 
 const User = () => {
   const userId = useParams();
   const [data, setData] = useState();
   const [dataPost, setDataPost] = useState([]);
+
   useEffect(() => {
+    console.log("tại sao k chạy");
     getDataUser();
     getPostByUser();
-  }, []);
+  }, [userId]);
+
   const getDataUser = async () => {
     try {
       const response = await axios.get(`${DOMAIN}/users/getByID/${userId?.id}`);
@@ -53,7 +57,7 @@ const User = () => {
             <UserInfor dataUser={data} />
           </div>
         </div>
-        <YourPost dataPost={dataPost} />
+        <YourPost dataPost={dataPost} refreshData={getPostByUser} />
         <NewsSaved />
       </div>
     </div>

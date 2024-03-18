@@ -12,7 +12,7 @@ const NewsTopView = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(`${DOMAIN}/news/top-viewed`);
-      console.log("response", response);
+      // console.log("response", response);
       setData(response.data);
     } catch (error) {
       console.log(error);
@@ -29,8 +29,8 @@ const NewsTopView = () => {
         data.map((item) => (
           <div
             key={item.news_id}
-            onClick={() => navigate(`/${item.slug}`)}
-            className=" flex flex-col px-2 bg border border-slate-300 rounded-md py-1 drop-shadow-md cursor-pointer hover:bg-white"
+            onClick={() => navigate(`/${item.slug}`, { state: item })}
+            className=" flex flex-col px-2 border my-2 rounded-md py-1 drop-shadow-md cursor-pointer hover:bg-white"
           >
             <h2 className=" text-left line-clamp-2">{item.title}</h2>
             <div className=" flex justify-between">
